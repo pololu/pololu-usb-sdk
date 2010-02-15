@@ -1,5 +1,5 @@
 # Generate a unique list of files that need to be in the same
-# directory as UscCmd at runtime (runtime dependencies).
+# directory as the executable at runtime (runtime dependencies).
 MaestroExample_runtime := $(sort $(Bytecode_lib) $(UsbWrapper_lib) $(Usc_lib))
 
 # Compile-time dependencies.
@@ -8,8 +8,8 @@ MaestroExample_csfiles := $(MaestroExample)/MainWindow.cs $(MaestroExample)/Main
 
 # These two resources files don't seem to be needed for compilation, but
 # we include them here in case you need them in the future.  This variable
-# defines which .resources files are needed.  The rule for makign .resources
-# files is defined in the Makefile: (just call resgen2)
+# defines which .resources files are needed.  The rule for making .resources
+# files is defined in the Makefile.
 MaestroExample_resources := \
 	$(MaestroExample)/MainWindow.resources \
 	$(MaestroExample)/Properties/Resources.resources
@@ -23,7 +23,7 @@ MaestroExample_resource_args = $(join \
 	$(foreach id, $(MaestroExample_resourceids), ,$(id)))
 
 # Required module variables
-Targets += $(MaestroExample)/MaestroExample.exe $(MaestroExample_resources)
+Targets += $(MaestroExample)/MaestroExample $(MaestroExample_resources)
 Byproducts += $(foreach dll, $(MaestroExample_runtime), $(MaestroExample)/$(notdir $(dll)))
 
 MaestroExample_StandardLibs := \
@@ -33,6 +33,10 @@ MaestroExample_StandardLibs := \
 	-r:/usr/lib/mono/2.0/System.Drawing.dll \
 	-r:/usr/lib/mono/2.0/System.Windows.Forms.dll \
 
-$(MaestroExample)/MaestroExample.exe: $(MaestroExample_csfiles) $(MaestroExample_runtime) $(MaestroExample_resources)
+$(MaestroExample)/MaestroExample: $(MaestroExample_csfiles) $(MaestroExample_runtime) $(MaestroExample_resources)
 	cp $(MaestroExample_runtime) $(MaestroExample)
-	$(CS) -target:exe -out:$@ $(MaestroExample_csfiles) $(foreach dll, $(MaestroExample_dlls),-r:$(MaestroExample)/$(notdir $(dll))) $(MaestroExample_StandardLibs) $(MaestroExample_resource_args)
+	$(CS) -target:exe -out:$@.exe $(MaestroExample_csfiles) $(foreach dll, $(MaestroExample_dlls),-r:$(MaestroExample)/$(notdir $(dll))) $(MaestroExample_StandardLibs) $(MaestroExample_resource_args)
+	mv $@.exe $@
+
+# Alias so you can type "make maestroexample"
+maestroexample: $(MaestroExample)/MaestroExample

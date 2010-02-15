@@ -7,9 +7,14 @@ PgmCmd_dlls := $(UsbWrapper)/UsbWrapper.dll $(Programmer)/Programmer.dll
 PgmCmd_csfiles := $(PgmCmd)/Program.cs $(PgmCmd)/Properties/AssemblyInfo.cs
 
 # Required module variables
-Targets += $(PgmCmd)/PgmCmd.exe
+Targets += $(PgmCmd)/PgmCmd
 Byproducts += $(foreach rt, $(PgmCmd_runtime), $(PgmCmd)/$(notdir $(rt)))
 
-$(PgmCmd)/PgmCmd.exe: $(PgmCmd_csfiles) $(PgmCmd_runtime)
+$(PgmCmd)/PgmCmd: $(PgmCmd_csfiles) $(PgmCmd_runtime)
 	cp $(PgmCmd_runtime) $(PgmCmd)
-	$(CS) -target:exe -out:$@ $(PgmCmd_csfiles) $(foreach dll, $(PgmCmd_dlls),-r:$(PgmCmd)/$(notdir $(dll)))
+	$(CS) -target:exe -out:$@.exe $(PgmCmd_csfiles) $(foreach dll, $(PgmCmd_dlls),-r:$(PgmCmd)/$(notdir $(dll)))
+	mv $@.exe $@
+
+# Alias so you can type "make pgmcmd"
+pgmcmd: $(PgmCmd)/PgmCmd
+

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Text;
 
-namespace Pololu.Usc
+namespace Pololu.Usc.UscCmd
 {
     class CommandOptions
     {

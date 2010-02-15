@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -257,6 +257,8 @@ namespace Pololu.UsbAvrProgrammer
             setVariable(VariableId.SCK_DURATION, (byte)value);
         }
 
+        
+
         public ProgrammerSettings getSettings()
         {
             var settings = new ProgrammerSettings();
@@ -324,6 +326,11 @@ namespace Pololu.UsbAvrProgrammer
         public SloscopeState getSloscopeState()
         {
             return (SloscopeState)getVariable(VariableId.SLOSCOPE_STATE);
+        }
+
+        public void setSloscopeState(SloscopeState value)
+        {
+            setVariable(VariableId.SLOSCOPE_STATE, (byte)value);
         }
 
         /// <summary>
@@ -418,6 +425,11 @@ namespace Pololu.UsbAvrProgrammer
             else if (frequency >= 4) { return SckDuration.Frequency4; }
             else { return SckDuration.Frequency1_5; }
         }
+
+        //public AsynchronousInTransfer newSloscopeInTransfer()
+        //{
+        //    return newAsynchronousInTransfer(5, 22, 100);
+        //}
     }
 
     /// <summary>

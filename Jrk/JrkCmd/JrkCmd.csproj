@@ -5,11 +5,11 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>9.0.21022</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{FBF6BAD4-CAA7-4D94-BA2E-B57380FB3323}</ProjectGuid>
-    <OutputType>Library</OutputType>
+    <ProjectGuid>{F5BBCE5D-516C-46D3-8821-056A435DDB1E}</ProjectGuid>
+    <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Pololu.UsbAvrProgrammer</RootNamespace>
-    <AssemblyName>Programmer</AssemblyName>
+    <RootNamespace>JrkCmd</RootNamespace>
+    <AssemblyName>JrkCmd</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -21,7 +21,6 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -30,7 +29,6 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -47,8 +45,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ProgrammerSettings.cs" />
-    <Compile Include="Programmer.cs" />
+    <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -56,6 +53,10 @@
         <SpecificVersion>False</SpecificVersion>
         <HintPath>..\..\UsbWrapper_Windows\UsbWrapper.dll</HintPath>
     </Reference>
+    <ProjectReference Include="..\Jrk\Jrk.csproj">
+      <Project>{3D47FA7D-926D-45E5-B8B2-CEDC29FEC034}</Project>
+      <Name>Jrk</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

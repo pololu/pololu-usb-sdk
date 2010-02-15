@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.ComponentModel;
@@ -141,6 +141,11 @@ namespace Pololu.UsbWrapper
             }
             return l;
         }
+
+        public static void check()
+        {
+            LibUsb.handleEvents();
+        }
     }
 
     internal static class LibUsb
@@ -181,33 +186,33 @@ namespace Pololu.UsbWrapper
             switch(error)
             {
             case -1:
-                return "I/O error";
+                return "I/O error.";
             case -2:
-                return "invalid parameter";
+                return "Invalid parameter.";
             case -3:
-                return "access denied";
+                return "Access denied.";
             case -4:
-                return "device does not exist";
+                return "Device does not exist.";
             case -5:
-                return "no such entity";
+                return "No such entity.";
             case -6:
-                return "busy";
+                return "Busy.";
             case -7:
-                return "timeout";
+                return "Timeout.";
             case -8:
-                return "overflow";
+                return "Overflow.";
             case -9:
-                return "pipe error";
+                return "Pipe error.";
             case -10:
-                return "system call was interrupted";
+                return "System call was interrupted.";
             case -11:
-                return "out of memory";
+                return "Out of memory.";
             case -12:
-                return "unsupported/unimplemented operation";
+                return "Unsupported/unimplemented operation.";
             case -99:
-                return "other error";
+                return "Other error.";
             default:
-                return "unknown error or not an error?";
+                return "Unknown error code " + error + ".";
             };
         }
 
@@ -228,6 +233,14 @@ namespace Pololu.UsbWrapper
                 return privateContext;
             }
         }
+
+        internal static void handleEvents()
+        {
+            LibUsb.throwIfError(libusb_handle_events(context));
+        }
+
+        [DllImport("libusb-1.0")]
+        static unsafe extern int libusb_handle_events(LibusbContext ctx);
 
         /// <returns>the serial number</returns>
         internal static unsafe string getSerialNumber(IntPtr device_handle)
@@ -269,6 +282,8 @@ namespace Pololu.UsbWrapper
                                "Failed to get device descriptor");
             return descriptor;
         }
+
+        
     }
 
     public abstract class UsbDevice
@@ -298,16 +313,22 @@ namespace Pololu.UsbWrapper
             }
         }
 
-        protected void controlTransfer(byte RequestType, byte Request, ushort Value, ushort Index, byte[] data)
+        protected uint controlTransfer(byte RequestType, byte Request, ushort Value, ushort Index, byte[] data)
         {
             int ret;
             ret = libusbControlTransfer(deviceHandle, RequestType, Request,
                                         Value, Index, data, (ushort)data.Length, (ushort)5000);
 
             LibUsb.throwIfError(ret,"Control transfer failed");
+            return (uint)ret;
         }
 
-        IntPtr deviceHandle;
+        IntPtr privateDeviceHandle;
+
+        internal IntPtr deviceHandle
+        {
+            get { return privateDeviceHandle; }
+        }
 
         /// <summary>
         /// Create a usb device from a deviceListItem
@@ -315,7 +336,7 @@ namespace Pololu.UsbWrapper
         /// <param name="handles"></param>
         protected UsbDevice(DeviceListItem deviceListItem)
         {
-            LibUsb.throwIfError(libusbOpen(deviceListItem.devicePointer,out deviceHandle),
+            LibUsb.throwIfError(libusbOpen(deviceListItem.devicePointer,out privateDeviceHandle),
                                "Error connecting to device.");
         }
 
@@ -427,7 +448,7 @@ namespace Pololu.UsbWrapper
                     {
                         IntPtr device_handle;
                         LibUsb.throwIfError(UsbDevice.libusbOpen(device,out device_handle),
-                                           "Error connecting to device.");
+                                            "Error connecting to device to get serial number ("+(i+1)+" of "+count+", "+device.ToString("x8")+").");
 
                         string s = "#" + LibUsb.getSerialNumber(device_handle);
                         list.Add(new DeviceListItem(device,s,s.Substring(1)));
@@ -444,6 +465,11 @@ namespace Pololu.UsbWrapper
 
             return list;
         }
+
+        //protected AsynchronousInTransfer newAsynchronousInTransfer(byte endpoint, uint size, uint timeout)
+        //{
+        //    return new AsynchronousInTransfer(this, endpoint, size, timeout);
+        //}
     }
 
     [StructLayout(LayoutKind.Sequential, Pack=1)]

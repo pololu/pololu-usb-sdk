@@ -5,11 +5,11 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>9.0.21022</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{FBF6BAD4-CAA7-4D94-BA2E-B57380FB3323}</ProjectGuid>
+    <ProjectGuid>{3D47FA7D-926D-45E5-B8B2-CEDC29FEC034}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Pololu.UsbAvrProgrammer</RootNamespace>
-    <AssemblyName>Programmer</AssemblyName>
+    <RootNamespace>Jrk</RootNamespace>
+    <AssemblyName>Jrk</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -37,6 +37,8 @@
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml.Linq">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
@@ -47,8 +49,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ProgrammerSettings.cs" />
-    <Compile Include="Programmer.cs" />
+    <Compile Include="ConfigurationFile.cs" />
+    <Compile Include="IJrkParameterHolder.cs" />
+    <Compile Include="Jrk_protocol.cs" />
+    <Compile Include="Jrk.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

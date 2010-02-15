@@ -5,7 +5,7 @@ using System.Reflection;
 using Pololu.UsbWrapper;
 using Pololu.Usc.Bytecode;
 
-namespace Pololu.Usc
+namespace Pololu.Usc.UscCmd
 {
     /// <summary>
     /// This class represents the executable commandline utility UscCmd.exe.
@@ -17,18 +17,25 @@ namespace Pololu.Usc
             CommandOptions opts = new CommandOptions(Assembly.GetExecutingAssembly().GetName()+"\n"+
                 "Select one of the following actions:\n"+
                 "  --list                   list available devices\n"+
-                "  --configure <conf.txt>   load configuration file conf.txt into device\n"+
-                "  --getconf <conf.txt>     read device settings and write configuration file conf.txt\n"+
+                "  --configure FILE         load configuration file into device\n"+
+                "  --getconf FILE           read device settings and write configuration file\n"+
                 "  --restoredefaults        restore factory settings\n"+
-                "  --program <prog.txt>     compile and load bytecode program prog.txt\n"+
+                "  --program FILE           compile and load bytecode program\n"+
                 "  --status                 display complete device status\n"+
                 "  --bootloader             put device into bootloader (firmware upgrade) mode\n"+
                 "  --stop                   stops the script running on the device\n"+
                 "  --start                  starts the script running on the device\n"+
                 "  --restart                restarts the script at the beginning\n"+
-                "  --step                   runs a single instruction of the script running on the device\n"+
-                "  --sub <n>                calls subroutine n (can be hex or decimal)\n"+
-                "  --sub <n>,<parameter>    calls subroutine n with a parameter (hex or decimal) placed on the stack\n"+
+                "  --step                   runs a single instruction of the script\n"+
+                "  --sub NUM                calls subroutine n (can be hex or decimal)\n"+
+                "  --sub NUM,PARAMETER      calls subroutine n with a parameter (hex or decimal)\n"+
+                "                           placed on the stack\n"+
+                "  --servo NUM,TARGET       sets the target of servo NUM in units of\n" +
+                "                           1/4 microsecond\n"+
+                "  --speed NUM,SPEED        sets the speed of servo NUM in units of\n" +
+                "                           25 microsecond/second\n"+      
+                "  --accel NUM,ACCEL        sets the acceleration of servo NUM to a value 0-255\n"+
+                "                           in units of 312.5 microsecond/second^2\n"+
                 "Select which device to perform the action on (optional):\n"+
                 "  --device 00001430        (optional) select device #00001430\n",
                 args);
@@ -138,6 +145,66 @@ namespace Pololu.Usc
             else if (opts["step"] != null)
             {
                 setScriptDone(usc, 2);
+            }
+            else if (opts["servo"] != null)
+            {
+                string[] parts = opts["servo"].Split(',');
+                if(parts.Length != 2)
+                    opts.error("Wrong number of commas in the argument to servo.");
+                byte servo=0;
+                ushort target=0;
+                try
+                {
+                    servo = byte.Parse(parts[0]);
+                    target = ushort.Parse(parts[1]);
+                }
+                catch(FormatException)
+                {
+                    opts.error();
+                }
+                Console.Write("Setting target of servo "+servo+" to "+target+"...");
+                usc.setTarget(servo, target);
+                Console.WriteLine("");
+            }
+            else if (opts["speed"] != null)
+            {
+                string[] parts = opts["speed"].Split(',');
+                if(parts.Length != 2)
+                    opts.error("Wrong number of commas in the argument to speed.");
+                byte servo=0;
+                ushort speed=0;
+                try
+                {
+                    servo = byte.Parse(parts[0]);
+                    speed = ushort.Parse(parts[1]);
+                }
+                catch(FormatException)
+                {
+                    opts.error();
+                }
+                Console.Write("Setting speed of servo "+servo+" to "+speed+"...");
+                usc.setSpeed(servo, speed);
+                Console.WriteLine("");
+            }
+            else if (opts["accel"] != null)
+            {
+                string[] parts = opts["accel"].Split(',');
+                if(parts.Length != 2)
+                    opts.error("Wrong number of commas in the argument to accel.");
+                byte servo=0;
+                byte acceleration=0;
+                try
+                {
+                    servo = byte.Parse(parts[0]);
+                    acceleration = byte.Parse(parts[1]);
+                }
+                catch(FormatException)
+                {
+                    opts.error();
+                }
+                Console.Write("Setting speed of servo "+servo+" to "+acceleration+"...");
+                usc.setAcceleration(servo, acceleration);
+                Console.WriteLine("");
             }
             else if (opts["sub"] != null)
             {

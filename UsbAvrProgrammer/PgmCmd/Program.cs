@@ -6,7 +6,7 @@ using Pololu.UsbAvrProgrammer;
 using Pololu.UsbWrapper;
 using System.Text.RegularExpressions;
 
-namespace PgmCmd
+namespace Pololu.UsbAvrProgrammer.PgmCmd
 {
     static class Program
     {
@@ -16,18 +16,18 @@ namespace PgmCmd
                 "Version: " + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString() + "\n" +
                 "Options:\n" +
                 " -l, --list             list available devices\n" +
-                " -d, --device 00001430  (optional) select device with serial number 00001430\n" +
+                " -d, --device SERIALNUM (optional) select device with given serial number\n" +
                 " -s, --status           display complete device status\n" +
-                "     --freq <f>         sets the ISP frequency (in units of kHz)\n" +
-                "     --linea <id>\n" +
-                "       or --lineb <id>  set serial control signal associated with line A or B.\n" +
-                "                        Valid ids are: none, cd, dsr, ri, dtr, rts.\n" +
+                "     --freq NUM         sets the ISP frequency (in units of kHz)\n" +
+                "     --linea ID\n" +
+                "       or --lineb ID    set serial control signal associated with line A or B.\n" +
+                "                        Valid IDs are: none, cd, dsr, ri, dtr, rts.\n" +
                 "                        Warning: dtr and rts are outputs: -f option is required\n" +
-                "     --swminor <h>      set AVR ISP software version minor (in hex, e.g. A)\n" +
-                "     --swmajor <h>      set AVR ISP software version major (in hex)\n" +
-                "     --hw <h>           set AVR ISP software hardware version (in hex)\n" +
-                "     --vddmin <v>       set minimum allowed target vdd (units of mV)\n" +
-                "     --vddmaxrange <v>  set maximum allowed target vdd range (units of mV)\n" +
+                "     --swminor HEXNUM   AVR ISP software version minor (in hex, e.g. A)\n" +
+                "     --swmajor HEXNUM   AVR ISP software version major (in hex)\n" +
+                "     --hw HEXNUM        AVR ISP software hardware version (in hex)\n" +
+                "     --vddmin NUM       set minimum allowed target vdd (units of mV)\n" +
+                "     --vddmaxrange NUM  set maximum allowed target vdd range (units of mV)\n" +
                 "     --restoredefaults  restore factory settings\n" +
                 "     --bootloader       put device in to bootloader (firmware upgrade) mode\n";
         }
@@ -109,7 +109,6 @@ namespace PgmCmd
             {
                 if (args.Length > 1) { throw new ArgumentException("If --list is present, it must be the only option."); }
                 listDevices();
-                //System.Threading.Thread.Sleep(60000); //tmphax
                 return;
             }
 
@@ -409,7 +408,7 @@ namespace PgmCmd
 
             if (list.Count == 1)
             {
-                Console.WriteLine("1 " + Programmer.englishName + "s found:");
+                Console.WriteLine("1 " + Programmer.englishName + " found:");
             }
             else
             {
