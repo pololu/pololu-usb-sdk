@@ -1,6 +1,6 @@
 Pololu USB Software Development Kit
 
-Release Date: 2010-02-15
+Release Date: 2010-03-17
 http://www.pololu.com/
 
 
@@ -130,6 +130,11 @@ that is an option for you.
      ./Maestro/MaestroExample/MaestroExample
      ./Jrk/JrkCmd/JrkCmd
      ./Jrk/JrkExample/JrkExample
+
+   If you get an error message that says "cannot execute binary file",
+   then try running the program with the mono runtime, for example:
+
+     mono ./Maestro/UscCmd/UscCmd
 
    You can now modify these programs or create your own programs.
 
