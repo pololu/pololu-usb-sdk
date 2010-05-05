@@ -20,6 +20,13 @@ namespace Pololu.Usc
         REQUEST_SET_SERVO_VARIABLE = 0x84,
         REQUEST_SET_TARGET = 0x85,
         REQUEST_CLEAR_ERRORS = 0x86,
+        REQUEST_GET_SERVO_SETTINGS = 0x87,
+
+        // GET STACK and GET CALL STACK are only used on the Mini Maestro.
+		REQUEST_GET_STACK = 0x88,
+        REQUEST_GET_CALL_STACK = 0x89,
+        REQUEST_SET_PWM = 0x8A,
+
         REQUEST_REINITIALIZE = 0x90,
         REQUEST_ERASE_SCRIPT = 0xA0,
         REQUEST_WRITE_SCRIPT = 0xA1,
@@ -42,19 +49,19 @@ namespace Pololu.Usc
         /// <summary>The target position in units of quarter-microseconds.</summary>
         public UInt16 target;
 
-        /// <summary>The speed limit in units of (0.25 us)/(10 ms).</summary>
+        /// <summary>The speed limit.  Units depends on your settings.</summary>
         public UInt16 speed;
 
-        /// <summary>The acceleration limit in units of (0.25 us)/(10 ms)/(80 ms).</summary>
+        /// <summary>The acceleration limit.  Units depend on your settings.</summary>
         public Byte acceleration;
     };
 
     /// <summary>
-    /// Represents the non-channel-specific variables that can be read from
-    /// the Maestro using REQUEST_GET_VARIABLES.
+    /// Represents the variables that can be read from
+    /// a Micro Maestro or Mini Maestro using REQUEST_GET_VARIABLES,
+    /// excluding channel information, the stack, and the call stack.
     /// </summary>
-    [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    unsafe public struct uscVariables
+	public struct MaestroVariables
     {
         /// <summary>
         /// The number of values on the data stack (0-32).  A value of 0 means the stack is empty.
@@ -78,7 +85,53 @@ namespace Pololu.Usc
         /// </summary>
         public UInt16 programCounter;
 
-	/// <summary>Meaningless bytes to protect the program from stack underflows.</summary>
+        /// <summary>
+        /// 0 = script is running.
+        /// 1 = script is done.
+        /// 2 = script will be done as soon as it executes one more instruction
+        ///     (used to implement step-through debugging features)
+        /// </summary>
+        public Byte scriptDone;
+
+        /// <summary>
+        /// The performance flag register.  Each bit represents a different flag.
+        /// If it is 1, then it means that the flag occurred some time since the last
+        /// getVariables request.  This register is always 0 for the Micro Maestro
+        /// because performance flags only apply to the Mini Maestros.
+        /// </summary>
+        public Byte performanceFlags;
+    }
+
+    /// <summary>
+    /// Represents the non-channel-specific variables that can be read from
+    /// a Micro Maestro using REQUEST_GET_VARIABLES.
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
+    unsafe public struct MicroMaestroVariables
+    {
+        /// <summary>
+        /// The number of values on the data stack (0-32).  A value of 0 means the stack is empty.
+        /// </summary>
+        public Byte stackPointer;
+
+        /// <summary>
+        /// The number of return locations on the call stack (0-10).  A value of 0 means the stack is empty.
+        /// </summary>
+        public Byte callStackPointer;
+
+        /// <summary>
+        /// The error register.  Each bit stands for a different error (see uscError).
+        /// If the bit is one, then it means that error occurred some time since the last
+        /// GET_ERRORS serial command or CLEAR_ERRORS USB command.
+        /// </summary>
+        public UInt16 errors;
+
+        /// <summary>
+        /// The address (in bytes) of the next bytecode instruction that will be executed.
+        /// </summary>
+        public UInt16 programCounter;
+
+        /// <summary>Meaningless bytes to protect the program from stack underflows.</summary>
         /// <remarks>This is public to avoid mono warning CS0169.</remarks>
         public fixed Int16 buffer[3];
 
@@ -103,12 +156,56 @@ namespace Pololu.Usc
         /// </summary>
         public Byte scriptDone;
 
-	/// <summary>Meaningless byte to protect the program from call stack overflows.</summary>
+        /// <summary>Meaningless byte to protect the program from call stack overflows.</summary>
         /// <remarks>This is public to avoid mono warning CS0169.</remarks>
         public Byte buffer2;
 
         // NOTE: C# does not allow fixed arrays of structs; after these variables,
-        // 6 copies of servoSetting follow.
+        // 6 copies of servoSetting follow on the Micro Maestro.
+    }
+
+    /// <summary>
+    /// Represents the variables that can be read from a Mini Maestro using REQUEST_GET_VARIABLES.
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
+    unsafe public struct MiniMaestroVariables
+    {
+        /// <summary>
+        /// The number of values on the data stack (0-32).  A value of 0 means the stack is empty.
+        /// </summary>
+        public Byte stackPointer;
+
+        /// <summary>
+        /// The number of return locations on the call stack (0-10).  A value of 0 means the stack is empty.
+        /// </summary>
+        public Byte callStackPointer;
+
+        /// <summary>
+        /// The error register.  Each bit stands for a different error (see uscError).
+        /// If the bit is one, then it means that error occurred some time since the last
+        /// GET_ERRORS serial command or CLEAR_ERRORS USB command.
+        /// </summary>
+        public UInt16 errors;
+
+        /// <summary>
+        /// The address (in bytes) of the next bytecode instruction that will be executed.
+        /// </summary>
+        public UInt16 programCounter;
+
+        /// <summary>
+        /// 0 = script is running.
+        /// 1 = script is done.
+        /// 2 = script will be done as soon as it executes one more instruction
+        ///     (used to implement step-through debugging features)
+        /// </summary>
+        public Byte scriptDone;
+
+        /// <summary>
+        /// The performance flag register.  Each bit represents a different error.
+        /// If it is 1, then it means that the error occurred some time since the last
+        /// getVariables request.
+        /// </summary>
+        public Byte performanceFlags; 
     }
 
     /// <summary>
@@ -128,19 +225,22 @@ namespace Pololu.Usc
         PARAMETER_SERIAL_DEVICE_NUMBER = 10, // 1 byte unsigned value, 0-127
         PARAMETER_SERIAL_BAUD_DETECT_TYPE = 11, // 1 byte value
 
-        PARAMETER_IO_MASK_A = 12, // 1 byte - reserved
-        PARAMETER_OUTPUT_MASK_A = 13, // 1 byte - reserved
-        PARAMETER_IO_MASK_B = 14, // 1 byte - reserved
-        PARAMETER_OUTPUT_MASK_B = 15, // 1 byte - reserved
         PARAMETER_IO_MASK_C = 16, // 1 byte - pins used for I/O instead of servo
         PARAMETER_OUTPUT_MASK_C = 17, // 1 byte - outputs that are enabled
-        PARAMETER_IO_MASK_D = 18, // 1 byte - reserved
-        PARAMETER_OUTPUT_MASK_D = 19, // 1 byte - reserved
-        PARAMETER_IO_MASK_E = 20, // 1 byte - reserved
-        PARAMETER_OUTPUT_MASK_E = 21, // 1 byte - reserved
+
+        PARAMETER_CHANNEL_MODES_0_3                 = 12, // 1 byte - channel modes 0-3
+        PARAMETER_CHANNEL_MODES_4_7                 = 13, // 1 byte - channel modes 4-7
+        PARAMETER_CHANNEL_MODES_8_11                = 14, // 1 byte - channel modes 8-11
+        PARAMETER_CHANNEL_MODES_12_15               = 15, // 1 byte - channel modes 12-15
+        PARAMETER_CHANNEL_MODES_16_19               = 16, // 1 byte - channel modes 16-19
+        PARAMETER_CHANNEL_MODES_20_23               = 17, // 1 byte - channel modes 20-23
+        PARAMETER_MINI_MAESTRO_SERVO_PERIOD_L = 18, // servo period: 3-byte unsigned values, units of quarter microseconds
+        PARAMETER_MINI_MAESTRO_SERVO_PERIOD_HU = 19,
+        PARAMETER_ENABLE_PULLUPS = 21,  // 1 byte: 0 or 1
         PARAMETER_SCRIPT_CRC = 22, // 2 bytes - stores a checksum of the bytecode program, for comparison
         PARAMETER_SCRIPT_DONE = 24, // 1 byte - copied to scriptDone on startup
         PARAMETER_SERIAL_MINI_SSC_OFFSET = 25, // 1 byte (0-254)
+        PARAMETER_SERVO_MULTIPLIER = 26, // 1 byte (0-255)
 
         // 9 * 24 = 216, so we can safely start at 30
         PARAMETER_SERVO0_HOME = 30, // 2 byte home position (0=off; 1=ignore)
@@ -236,6 +336,13 @@ namespace Pololu.Usc
         ERROR_SCRIPT_STACK = 6,
         ERROR_SCRIPT_CALL_STACK = 7,
         ERROR_SCRIPT_PROGRAM_COUNTER = 8,
+    };
+
+    public enum performanceFlag : byte
+    {
+        PERROR_ADVANCED_UPDATE = 0,
+        PERROR_BASIC_UPDATE = 1,
+        PERROR_PERIOD = 2
     };
 }
 

@@ -126,11 +126,10 @@ namespace Pololu.Usc.MaestroExample
         /// </summary>
         private void DisplayPosition()
         {
-            uscVariables v;
             ServoStatus[] servos;
-            usc.getVariables(out v, out servos);
+            usc.getVariables(out servos);
 
-            PositionTextBox.Text = servos[0].position.ToString() ;
+            PositionTextBox.Text = servos[0].position.ToString();
         }
 
         private int sequence_counter = 0;

@@ -4,7 +4,7 @@ namespace Pololu.Usc.Sequencer
 {
     public class Frame
     {
-	    public string name;
+        public string name;
         public ushort[] targets;
     	public ushort length_ms;
 
@@ -50,5 +50,3 @@ namespace Pololu.Usc.Sequencer
         }
     }
 }
-
-// UNRELATED TODO: display accel and speed as integers in interface

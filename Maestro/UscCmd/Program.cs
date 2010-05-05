@@ -32,10 +32,8 @@ namespace Pololu.Usc.UscCmd
                 "                           placed on the stack\n"+
                 "  --servo NUM,TARGET       sets the target of servo NUM in units of\n" +
                 "                           1/4 microsecond\n"+
-                "  --speed NUM,SPEED        sets the speed of servo NUM in units of\n" +
-                "                           25 microsecond/second\n"+      
+                "  --speed NUM,SPEED        sets the speed limit of servo NUM\n"+      
                 "  --accel NUM,ACCEL        sets the acceleration of servo NUM to a value 0-255\n"+
-                "                           in units of 312.5 microsecond/second^2\n"+
                 "Select which device to perform the action on (optional):\n"+
                 "  --device 00001430        (optional) select device #00001430\n",
                 args);
@@ -100,7 +98,6 @@ namespace Pololu.Usc.UscCmd
                     opts.error();
 
                 usc.startBootloader();
-                // TODO: go into bootloader
                 return;
             }
             else if (opts["status"] != null)
@@ -202,7 +199,7 @@ namespace Pololu.Usc.UscCmd
                 {
                     opts.error();
                 }
-                Console.Write("Setting speed of servo "+servo+" to "+acceleration+"...");
+                Console.Write("Setting acceleration of servo "+servo+" to "+acceleration+"...");
                 usc.setAcceleration(servo, acceleration);
                 Console.WriteLine("");
             }
@@ -284,38 +281,19 @@ namespace Pololu.Usc.UscCmd
 
         static unsafe void displayStatus(Usc usc)
         {
-            uscVariables variables;
+            MaestroVariables variables;
             ServoStatus[] servos;
-            usc.getVariables(out variables, out servos);
-            int i;
+            short[] stack;
+            ushort[] call_stack;
+            usc.getVariables(out variables, out stack, out call_stack, out servos);
 
-            Console.Write("position:     ");
-            for (i = 0; i < usc.servoCount; i++)
+            Console.WriteLine(" #  target   speed   accel     pos");
+            for (int i = 0; i < usc.servoCount; i++)
             {
-                Console.Write(servos[i].position.ToString().PadLeft(6, ' '));
+                Console.WriteLine("{0,2}{1,8}{2,8}{3,8}{4,8}", i,
+                    servos[i].target, servos[i].speed,
+                    servos[i].acceleration, servos[i].position);
             }
-            Console.WriteLine(""); // end the line
-
-            Console.Write("target:       ");
-            for (i = 0; i < usc.servoCount; i++)
-            {
-                Console.Write(servos[i].target.ToString().PadLeft(6, ' '));
-            }
-            Console.WriteLine(""); // end the line
-
-            Console.Write("speed:        ");
-            for (i = 0; i < usc.servoCount; i++)
-            {
-                Console.Write(servos[i].speed.ToString().PadLeft(6, ' '));
-            }
-            Console.WriteLine(""); // end the line
-
-            Console.Write("acceleration: ");
-            for (i = 0; i < usc.servoCount; i++)
-            {
-                Console.Write(servos[i].acceleration.ToString().PadLeft(6, ' '));
-            }
-            Console.WriteLine(""); // end the line
 
             Console.Write("errors: 0x"+variables.errors.ToString("X4"));
             foreach (var error in Enum.GetValues(typeof(uscError)))
@@ -335,17 +313,27 @@ namespace Pololu.Usc.UscCmd
 
             Console.WriteLine("program counter: "+variables.programCounter.ToString());
 
-            Console.Write("stack:        ");
-            for (i = 0; i < variables.stackPointer; i++)
+            Console.Write("stack:          ");
+            for (int i = 0; i < variables.stackPointer; i++)
             {
-                Console.Write(variables.stack[i].ToString().PadLeft(6, ' '));
+                if(i > stack.Length)
+                {
+                    Console.Write(" OVERFLOW (stack pointer = "+variables.stackPointer+")");
+                    break;
+                }
+                Console.Write(stack[i].ToString().PadLeft(8, ' '));
             }
             Console.WriteLine();
 
-            Console.Write("call stack:   ");
-            for (i = 0; i < variables.callStackPointer; i++)
+            Console.Write("call stack:     ");
+            for (int i = 0; i < variables.callStackPointer; i++)
             {
-                Console.Write(variables.callStack[i].ToString().PadLeft(6, ' '));
+                if(i > call_stack.Length)
+                {
+                    Console.Write(" OVERFLOW (call stack pointer = "+variables.callStackPointer+")");
+                    break;
+                }
+                Console.Write(call_stack[i].ToString().PadLeft(8, ' '));
             }
             Console.WriteLine();
         }
@@ -366,7 +354,6 @@ namespace Pololu.Usc.UscCmd
             List<String> warnings = new List<string>();
             UscSettings settings = ConfigurationFile.load(sr, warnings);
             usc.fixSettings(settings, warnings);
-            // TODO: display the warnings?
             usc.setUscSettings(settings, true);
             sr.Close();
             file.Close();
@@ -376,7 +363,7 @@ namespace Pololu.Usc.UscCmd
         static void program(Usc usc, string filename)
         {
             string text = (new StreamReader(filename)).ReadToEnd();
-            BytecodeProgram program = BytecodeReader.Read(text);
+            BytecodeProgram program = BytecodeReader.Read(text, usc.servoCount != 6);
             BytecodeReader.WriteListing(program,filename+".lst");
 
             usc.setScriptDone(1);

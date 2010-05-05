@@ -1,3 +1,6 @@
+// UsbWrapper_Linux/UsbDevice.cs:
+//   An interface between Pololu USB code and libusb-1.0 in Linux.
+
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -288,9 +291,9 @@ namespace Pololu.UsbWrapper
 
     public abstract class UsbDevice
     {
-        protected string getProductID()
+        protected ushort getProductID()
         {
-            return LibUsb.getDeviceDescriptor(deviceHandle).idProduct.ToString("X4");
+            return LibUsb.getDeviceDescriptor(deviceHandle).idProduct;
         }
 
         /// <summary>
@@ -302,23 +305,32 @@ namespace Pololu.UsbWrapper
         }
 
 
-        protected void controlTransfer(byte RequestType, byte Request, ushort Value, ushort Index)
+        protected unsafe void controlTransfer(byte RequestType, byte Request, ushort Value, ushort Index)
         {
             int ret;
             ret = libusbControlTransfer(deviceHandle, RequestType, Request,
-                                        Value, Index, new byte[] { }, 0, 5000);
+                                        Value, Index, (byte*)0, 0, (ushort)5000);
             if(ret != 0)
             {
                 throw new Exception("Control transfer failed.");
             }
         }
 
-        protected uint controlTransfer(byte RequestType, byte Request, ushort Value, ushort Index, byte[] data)
+        protected unsafe uint controlTransfer(byte RequestType, byte Request, ushort Value, ushort Index, byte[] data)
+        {
+            fixed(byte* pointer = data)
+            {
+                return controlTransfer(RequestType, Request,
+                                            Value, Index, pointer, (ushort)data.Length);
+            }
+        }
+
+        protected unsafe uint controlTransfer(byte RequestType, byte Request, ushort Value, ushort Index, void * data, ushort length)
         {
             int ret;
             ret = libusbControlTransfer(deviceHandle, RequestType, Request,
-                                        Value, Index, data, (ushort)data.Length, (ushort)5000);
-
+                                        Value, Index, data, length, (ushort)5000);
+            
             LibUsb.throwIfError(ret,"Control transfer failed");
             return (uint)ret;
         }
@@ -350,9 +362,9 @@ namespace Pololu.UsbWrapper
 
         [DllImport("libusb-1.0", EntryPoint = "libusb_control_transfer")]
         /// <returns>the number of bytes transferred or an error code</returns>
-        static extern int libusbControlTransfer(IntPtr device_handle, byte requesttype,
+        static extern unsafe int libusbControlTransfer(IntPtr device_handle, byte requesttype,
                                                 byte request, ushort value, ushort index,
-                                                byte[] bytes, ushort size, uint timeout);
+                                                void * bytes, ushort size, uint timeout);
 
         [DllImport("libusb-1.0", EntryPoint = "libusb_get_device_descriptor")]
         internal static extern int libusbGetDeviceDescriptor(IntPtr device, out LibusbDeviceDescriptor device_descriptor);

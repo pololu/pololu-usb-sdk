@@ -50,7 +50,9 @@ namespace Pololu.Usc.Sequencer
                     RegistryKey frameKey = sequenceKey.CreateSubKey(frameKeyName);
                     frameKey.SetValue("name", frame.name, RegistryValueKind.String);
 
-                    frameKey.SetValue("duration", frame.length_ms, RegistryValueKind.DWord);
+                    // Convert the duration to an Int32 because the current implementation of
+                    // SetValue in Mono only accepts Int32 and Long types.
+                    frameKey.SetValue("duration", (Int32)frame.length_ms, RegistryValueKind.DWord);
 
                     frameKey.SetValue("targets", frame.getTargetsString(), RegistryValueKind.String);
 
@@ -160,8 +162,7 @@ namespace Pololu.Usc.Sequencer
                         if (existing_list.Count != needed_channels.Count)
                             continue;
 
-                        int i;
-                        for (i = 0; i < existing_list.Count; i++)
+                        for (int i = 0; i < existing_list.Count; i++)
                         {
                             if (existing_list[i] != needed_channels[i])
                                 goto does_not_match;
@@ -194,9 +195,20 @@ namespace Pololu.Usc.Sequencer
                 }
                 else
                 {
+                    byte targetsOnThisLine = 0;
                     foreach (ushort target in changed_targets)
                     {
-                        script += target.ToString() + " ";
+                        // If there are already 6 targets on this line, then wrap,
+                        // but don't let the call to the frame subroutine be on its
+                        // own line.
+                        if (targetsOnThisLine == 6)
+                        {
+                            script += "\n  ";
+                            targetsOnThisLine = 0;
+                        }
+                        targetsOnThisLine++;
+
+                        script += target + " ";
                     }
                     script += getFrameSubroutineName(needed_channels);
                 }
@@ -207,39 +219,80 @@ namespace Pololu.Usc.Sequencer
 
         /// <summary>
         /// Generates the name of the frame subroutine that sets all of the specified channels.
-        /// It will be of the form frame_5_4_3.  TODO: include ranges, to allow frame_23_to_2, etc.
+        /// It will be of the form frame_1_3_4_6..8.
         /// </summary>
-        /// <param name="channels">The list of channels, in ascending numerical order.</param>
+        /// <param name="channels">A non-empty list of channels, in ascending numeric order.</param>
         /// <returns></returns>
         public static string getFrameSubroutineName(List<byte> channels)
         {
-            string n = "frame_";
-            foreach(byte channel in channels)
+            if (channels.Count == 0)
             {
-                n += channel.ToString() + "_";
+                throw new Exception("getFrameSubroutineName: Expected channels list to be non-empty.");
             }
-            n = n.TrimEnd(new char[] {'_'});
-            return n;
+
+            string name = "frame_";
+
+            int index = 0;
+            while (true)
+            {
+                // Each iteration of this loop will identify one block of consecutive channels
+                // starting at channel[index], add a representation of that block to the name,
+                // (e.g. "1", "2_3", or "4..6"), and increment index to point to the next block
+                // of consecutive channels.
+
+                // Determine where the block ends.  blockEnd is the exclusive upper limit of the array index.
+                int blockEnd = index + 1;
+                while(blockEnd < channels.Count && channels[blockEnd - 1] + 1 == channels[blockEnd])
+                {
+                    blockEnd ++ ;
+                }
+
+                // startChannel and endChannel are inclusive limits of the channel number.
+                byte startChannel = channels[index];
+                byte endChannel = channels[blockEnd-1];
+
+                if (endChannel == startChannel)
+                {
+                    // This block contains just one channel.
+                    name += startChannel;
+                }
+                else if (endChannel == startChannel + 1)
+                {
+                    // This block contains exactly two channels.  Use an
+                    // underscore because it is more compact than "..".
+                    name += startChannel + "_" + endChannel;
+                }
+                else
+                {
+                    // This block contains three or more channels.
+                    name += startChannel + ".." + endChannel;
+                }
+                
+                if (blockEnd == channels.Count)
+                {
+                    return name;
+                }
+
+                // Prepare to process the next block.
+                index = blockEnd;
+                name += "_";
+            }
         }
 
         /// <summary>
-        /// Generates the subroutine that sets the specified channels, then delays.  The channels are expected to be on the stack 
-        /// in the same order as the channels list - e.g. the command will be something like 500 1 2 3 frame_3_2_1.
+        /// Generates the subroutine that sets the specified channels, then
+        /// delays.  The channels are expected to be on the stack in the same
+        /// order as the channels list - e.g. the command will be something like
+        /// 500 1 2 3 frame_1..3.
         /// </summary>
-        /// <param name="channels"></param>
-        /// <returns></returns>
         public static string generateFrameSubroutine(List<byte> channels)
         {
-            string script = "";
-            script += "sub " + getFrameSubroutineName(channels) + "\n";
-            script += "  ";
-
-            int i;
-            for(i=channels.Count-1;i>=0;i--)
+            string script = "sub " + getFrameSubroutineName(channels) + "\n";
+            for(int i = channels.Count - 1; i >= 0; i--)
             {
-                script += channels[i].ToString() + " servo ";
+                script += "  " + channels[i].ToString() + " servo\n";
             }
-            script += "delay\n";
+            script += "  delay\n";
             script += "  return\n";
             return script;
         }

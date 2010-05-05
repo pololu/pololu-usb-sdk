@@ -1,6 +1,6 @@
 Pololu USB Software Development Kit
 
-Release Date: 2010-03-17
+Release Date: 2010-05-05
 http://www.pololu.com/
 
 
@@ -13,7 +13,10 @@ interfaces (as opposed to their virtual COM ports).  The supported
 devices are:
 
 * USB AVR Programmer (#1300)
-* Micro Maestro 6-channel USB Servo Controller (#1350, #1351)
+* Micro Maestro 6-Channel USB Servo Controller (#1350, #1351)
+* Mini Maestro 12-Channel USB Servo Controller (#1352, #1353)
+* Mini Maestro 18-Channel USB Servo Controller (#1354, #1355)
+* Mini Maestro 24-Channel USB Servo Controller (#1356, #1357)
 * Jrk 21v3 USB Motor Controller with Feedback (#1392)
 * Jrk 12v12 USB Motor Controller with Feedback (#1393)
 

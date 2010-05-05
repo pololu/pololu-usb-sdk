@@ -108,7 +108,7 @@
               This is usually equal to setupPacket.wLength.
             </returns>
         </member>
-        <member name="M:Pololu.WinusbHelper.WinUsbDevice.controlTransfer(Pololu.WinusbHelper.WinUsbDevice.WINUSB_SETUP_PACKET,System.Byte*)">
+        <member name="M:Pololu.WinusbHelper.WinUsbDevice.controlTransfer(Pololu.WinusbHelper.WinUsbDevice.WINUSB_SETUP_PACKET,System.Void*)">
             <summary>
             Performs a control transfer, a series of USB transactions that
             consist of a SETUP packet sent to the device, an optional data
@@ -145,17 +145,39 @@
             class can be used as an item in the device list dropdown box.
             </summary>
         </member>
-        <member name="F:Pololu.UsbWrapper.DeviceListItem.privateGuid">
+        <member name="F:Pololu.UsbWrapper.DeviceListItem.deviceInstance">
             <summary>
-            Stores the guid
+            Gets the device instance (DEVINST) for this device.  This can be
+            passed in WinusbHelper.connect() to connect the device.
+            </summary>
+        </member>
+        <member name="F:Pololu.UsbWrapper.DeviceListItem.guid">
+            <summary>
+            The guid of the Windows device interface class of this device.
+            </summary>
+        </member>
+        <member name="F:Pololu.UsbWrapper.DeviceListItem.privateText">
+            <summary>
+            The text to display to the user in the list to represent this
+            device.  Typically text is "#" + serialNumberString.
             </summary>
         </member>
         <member name="F:Pololu.UsbWrapper.DeviceListItem.serialNumber">
             <summary>
-            Caches the serial number so that we can create a device
+            The USB serial number string of the device.
+            </summary>
+            <remarks>
+            Since the serial number is needed by most applications, and used to
+            generate deviceListItem.text, it is not a big waste to always fetch
+            it when creating the device list.
+            </remarks>
+        </member>
+        <member name="F:Pololu.UsbWrapper.DeviceListItem.productId">
+            <summary>
+            The USB product ID of the device.
             </summary>
         </member>
-        <member name="M:Pololu.UsbWrapper.DeviceListItem.#ctor(System.Int32,System.Guid,System.String,System.String)">
+        <member name="M:Pololu.UsbWrapper.DeviceListItem.#ctor(System.Int32,System.Guid,System.String,System.String,System.UInt16)">
             <summary>
             Constructs a new device list item to represent a device connected to
             this computer.
@@ -172,30 +194,15 @@
             <summary>
             Creates an item that doesn't actually refer to a device; just for populating the list with things like "Disconnected"
             </summary>
-            <param name="text"></param>
         </member>
         <member name="M:Pololu.UsbWrapper.DeviceListItem.isSameDeviceAs(Pololu.UsbWrapper.DeviceListItem)">
             <summary>
-            True if the two devices are the same
-            </summary>
-            <param name="deviceListItem"></param>
-            <returns></returns>
-        </member>
-        <member name="P:Pololu.UsbWrapper.DeviceListItem.deviceInstance">
-            <summary>
-            Gets the device instance (DEVINST) for this device.  This can be
-            passed in WinusbHelper.connect() to connect the device.
-            </summary>
-        </member>
-        <member name="P:Pololu.UsbWrapper.DeviceListItem.guid">
-            <summary>
-            Gets the guid of this device
+            Return true if the two devices are the same.
             </summary>
         </member>
         <member name="P:Pololu.UsbWrapper.DeviceListItem.text">
             <summary>
-            Gets the text to display to the user in the list to represent this
-            device.  Typically text is "#" + serialNumberString.
+            The text to display to the user, as a property (needed for ComboBox)
             </summary>
         </member>
         <member name="T:Pololu.UsbWrapper.AsynchronousInTransfer">
@@ -314,6 +321,11 @@
             WinUsbDevices using WinUsbDeviceHandles structs.
             </summary>
         </member>
+        <member name="F:Pololu.WinusbHelper.Winusb.SPDRP_DEVICEDESC">
+            <summary>
+            A device registry property code from setupapi.h.
+            </summary>
+        </member>
         <member name="M:Pololu.WinusbHelper.Winusb.connect(System.Guid)">
             <summary>
             Connects to a device that has the specified GUID.
@@ -340,6 +352,11 @@
               The handle of the list created with listCreate.
             </param>
             <returns>The number of devices in the list.</returns>
+        </member>
+        <member name="M:Pololu.WinusbHelper.Winusb.listGetName(System.IntPtr,System.Byte)">
+            <summary>
+            Gets the name of the device as shown in the device manager.
+            </summary>
         </member>
         <member name="M:Pololu.WinusbHelper.Winusb.listGetSerialNumber(System.IntPtr,System.UInt32)">
             <summary>
@@ -373,10 +390,8 @@
         </member>
         <member name="M:Pololu.WinusbHelper.Winusb.getSerialNumber(System.Int32)">
             <summary>
-            Gets the serial number of a device by looking up the parent of the
-            device and reading its device instance ID.  This is what you need to
-            do for composite devices (a device that shows up twice in the
-            Device Manager) but it will not work for non-composite devices.
+            Gets the serial number of a device.  Works for composite and
+            non-composite devices.
             </summary>
             <param name="deviceInstance">A device instance (DEVINST)</param>
             <returns></returns>
@@ -501,6 +516,11 @@
             </summary>
             <returns></returns>
         </member>
+        <member name="M:Pololu.WinusbHelper.Winusb.SetupDiGetDeviceRegistryProperty(System.IntPtr,Pololu.WinusbHelper.Winusb.SP_DEVINFO_DATA@,System.UInt32,System.IntPtr,System.Byte*,System.UInt32,System.IntPtr)">
+            <summary>
+            This function returns error code 0x80004005 when you give it an incorrect Property argument.
+            </summary>
+        </member>
         <member name="T:Pololu.UsbWrapper.UsbDevice">
             <summary>
             An abstract class whose instances represent a connection to
@@ -523,8 +543,6 @@
             Returns the product ID of the device.  Every Pololu USB product that
             has a different product ID (except those that have identical firmware).
             Each product's bootloader has its own product ID as well.
-            This function returns a four-digit string but it should be safe to
-            convert it to a UInt16.
             </summary>
         </member>
         <member name="M:Pololu.UsbWrapper.UsbDevice.controlTransfer(System.Byte,System.Byte,System.UInt16,System.UInt16)">
@@ -539,7 +557,18 @@
         <member name="M:Pololu.UsbWrapper.UsbDevice.controlTransfer(System.Byte,System.Byte,System.UInt16,System.UInt16,System.Byte[])">
             <summary>
             Performs a control transfer that has a data stage.
-            The data either flows form the device to the host or the
+            The data either flows from the device to the host or the
+            host to the device.  The direction is determined by RequestType.
+            Returns when the control transfer is complete.
+            There is a 50 ms timeout so that a malfunctioning device
+            will not cause your program to hang.
+            </summary>
+            <remarks>For more info, see section 9.3 of the USB Specification.</remarks>
+        </member>
+        <member name="M:Pololu.UsbWrapper.UsbDevice.controlTransfer(System.Byte,System.Byte,System.UInt16,System.UInt16,System.Void*,System.UInt16)">
+            <summary>
+            Performs a control transfer that has a data stage.
+            The data either flows from the device to the host or the
             host to the device.  The direction is determined by RequestType.
             Returns when the control transfer is complete.
             There is a 50 ms timeout so that a malfunctioning device
@@ -554,7 +583,14 @@
         </member>
         <member name="M:Pololu.UsbWrapper.UsbDevice.disconnect">
             <summary>
-            disconnects from the usb device
+            Disconnects from the USB device, freeing all resources
+            that were allocated when the connection was made.
+            </summary>
+        </member>
+        <member name="M:Pololu.UsbWrapper.UsbDevice.Dispose">
+            <summary>
+            Disconnects from the USB device, freeing all resources
+            that were allocated when the connection was made.
             </summary>
         </member>
         <member name="M:Pololu.UsbWrapper.UsbDevice.getDeviceList(System.Guid)">

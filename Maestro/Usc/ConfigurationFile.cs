@@ -65,22 +65,15 @@ namespace Pololu.Usc
                     // Make a reader that can only read the stuff inside the Channels tag.
                     var channelsReader = reader.ReadSubtree();
 
-                    // For each servo...
-                    for (byte i = 0; i < settings.servoCount; i++)
+                    // For each Channel tag...
+                    while(channelsReader.ReadToFollowing("Channel"))
                     {
-                        // Try to find the channel tag.
-                        if (!channelsReader.ReadToFollowing("Channel"))
-                        {
-                            warnings.Add("Only " + i + " channel elements were found.  The last " + (settings.servoCount-i) + "channels will have default values.");
-                            break;
-                        }
-
                         // Read all the attributes.
                         Dictionary<String, String> xChannel = new Dictionary<string, string>();
                         readAttributes(channelsReader, xChannel);
 
                         // Transform the attributes in to a ChannelSetting object.
-                        ChannelSetting cs = settings.channelSettings[i] = new ChannelSetting();
+                        ChannelSetting cs = new ChannelSetting();
                         if (assertKey("name", xChannel, warnings))
                         {
                             cs.name = xChannel["name"];
@@ -90,6 +83,7 @@ namespace Pololu.Usc
                         {
                             switch (xChannel["mode"].ToLower())
                             {
+                                case "servomultiplied": cs.mode = ChannelMode.ServoMultiplied; break;
                                 case "servo": cs.mode = ChannelMode.Servo; break;
                                 case "input": cs.mode = ChannelMode.Input; break;
                                 case "output": cs.mode = ChannelMode.Output; break;
@@ -115,6 +109,8 @@ namespace Pololu.Usc
                         if (assertKey("acceleration", xChannel, warnings)) { parseU8(xChannel["acceleration"], ref cs.acceleration, "acceleration", warnings); }
                         if (assertKey("neutral", xChannel, warnings)) { parseU16(xChannel["neutral"], ref cs.neutral, "neutral", warnings); }
                         if (assertKey("range", xChannel, warnings)) { parseU16(xChannel["range"], ref cs.range, "range", warnings); }
+
+                        settings.channelSettings.Add(cs);
                     }
 
                     if (channelsReader.ReadToFollowing("Channel"))
@@ -198,7 +194,7 @@ namespace Pololu.Usc
                 }
                 else if (reader.NodeType == XmlNodeType.Element)
                 {
-                    // Read the miscellaneous parameters that come in element tabs, like <NeverSuspend>false</NeverSuspend>.
+                    // Read the miscellaneous parameters that come in element tags, like <NeverSuspend>false</NeverSuspend>.
                     try
                     {
                         xParams[reader.Name] = reader.ReadElementContentAsString();
@@ -264,19 +260,35 @@ namespace Pololu.Usc
                 parseU8(xParams["SerialMiniSscOffset"], ref settings.miniSscOffset, "SerialMiniSscOffset", warnings);
             }
 
-            if (assertKey("ServosAvailable", xParams, warnings))
+            if (assertKey("ScriptDone", xParams, warnings))
+            {
+                parseBool(xParams["ScriptDone"], ref settings.scriptDone, "ScriptDone", warnings);
+            }
+
+            /** These parameters are optional because they don't apply to all Maestros. **/
+            if (xParams.ContainsKey("ServosAvailable"))
             {
                 parseU8(xParams["ServosAvailable"], ref settings.servosAvailable, "ServosAvailable", warnings);
             }
 
-            if (assertKey("ServoPeriod", xParams, warnings))
+            if (xParams.ContainsKey("ServoPeriod"))
             {
                 parseU8(xParams["ServoPeriod"], ref settings.servoPeriod, "ServoPeriod", warnings);
             }
 
-            if (assertKey("ScriptDone", xParams, warnings))
+            if (xParams.ContainsKey("EnablePullups"))
             {
-                parseBool(xParams["ScriptDone"], ref settings.scriptDone, "ScriptDone", warnings);
+                parseBool(xParams["EnablePullups"], ref settings.enablePullups, "EnablePullups", warnings);
+            }
+
+            if (xParams.ContainsKey("MiniMaestroServoPeriod"))
+            {
+                parseU32(xParams["MiniMaestroServoPeriod"], ref settings.miniMaestroServoPeriod, "MiniMaestroServoPeriod", warnings);
+            }
+
+            if (xParams.ContainsKey("ServoMultiplier"))
+            {
+                parseU16(xParams["ServoMultiplier"], ref settings.servoMultiplier, "ServoMultiplier", warnings);
             }
 
             return settings;
@@ -290,7 +302,6 @@ namespace Pololu.Usc
         {
             if (reader.HasAttributes)
             {
-                //reader.MoveToFirstAttribute();
                 while (reader.MoveToNextAttribute())
                 {
                     attributes[reader.Name] = reader.ReadContentAsString();
@@ -386,10 +397,26 @@ namespace Pololu.Usc
             writer.WriteElementString("SerialDeviceNumber", settings.serialDeviceNumber.ToString());
             writer.WriteElementString("SerialMiniSscOffset", settings.miniSscOffset.ToString());
 
+            if (settings.servoCount > 18)
+            {
+                writer.WriteElementString("EnablePullups", settings.enablePullups ? "true" : "false");
+            }
+
             writer.WriteStartElement("Channels");
-            writer.WriteAttributeString("ServosAvailable", settings.servosAvailable.ToString());
-            writer.WriteAttributeString("ServoPeriod", settings.servoPeriod.ToString());
+
+            /** Attributes of the Channels tag **/
+            if (settings.servoCount == 6)
+            {
+                writer.WriteAttributeString("ServosAvailable", settings.servosAvailable.ToString());
+                writer.WriteAttributeString("ServoPeriod", settings.servoPeriod.ToString());
+            }
+            else
+            {
+                writer.WriteAttributeString("MiniMaestroServoPeriod", settings.miniMaestroServoPeriod.ToString());
+                writer.WriteAttributeString("ServoMultiplier", settings.servoMultiplier.ToString());
+            }
             writer.WriteComment("Period = " + (settings.periodInMicroseconds / 1000M).ToString() + " ms");
+
             for (byte i = 0; i < settings.servoCount; i++)
             {
                 ChannelSetting setting = settings.channelSettings[i];

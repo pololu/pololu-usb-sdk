@@ -30,7 +30,7 @@ namespace Pololu.Usc
 
         /// <summary>The Micro Maestro's product ID.</summary>
         /// <value>0x0089</value>
-        public const ushort productID = 0x0089;
+        public static ushort[] productIDArray = new ushort[] { 0x0089, 0x008a, 0x008b, 0x008c };
 
         /// <value>
         /// Maestro USB servo controller
@@ -54,7 +54,7 @@ namespace Pololu.Usc
         {
             get
             {
-                return new string[] { "USB\\VID_1FFB&PID_0088" };
+                return new string[] { "USB\\VID_1FFB&PID_0088", "USB\\VID_1FFB&PID_008D", "USB\\VID_1FFB&PID_008E", "USB\\VID_1FFB&PID_008F" };
             }
         }
 
@@ -166,10 +166,9 @@ namespace Pololu.Usc
         }
 
         /// <summary>
-        /// Converts channel number (0-5) to port mask bit number.
+        /// Converts channel number (0-5) to port mask bit number
+        /// on the Micro Maestro.  Not useful on other Maestros.
         /// </summary>
-        /// <param name="channel"></param>
-        /// <returns></returns>
         private byte channelToPort(byte channel)
         {
             if (channel <= 3)
@@ -184,15 +183,9 @@ namespace Pololu.Usc
         }
 
         /// <summary>
-        /// The number of servos on the device.  For now, always returns 6.
+        /// The number of servos on the device.  This will be 6, 12, 18, or 24.
         /// </summary>
-        public byte servoCount
-        {
-            get
-            {
-                return 6;
-            }
-        }
+        public readonly byte servoCount;
 
         ///<summary>The number of parameter bytes per servo.</summary>
         const byte servoParameterBytes = 9;
@@ -211,7 +204,55 @@ namespace Pololu.Usc
 
         public Usc(DeviceListItem deviceListItem) : base(deviceListItem)
         {
+            // Determine the number of servos from the product id.
+            switch(getProductID())
+            {
+                case 0x89: servoCount = 6; break;
+                case 0x8A: servoCount = 12; break;
+                case 0x8B: servoCount = 18; break;
+                case 0x8C: servoCount = 24; break;
+                default: throw new Exception("Unknown product id " + getProductID().ToString("x2") + ".");
+            }
         }
+
+        protected bool microMaestro
+        {
+            get
+            {
+                return servoCount == 6;
+            }
+        }
+
+        public byte stackSize
+        {
+            get
+            {
+                if (microMaestro)
+                {
+                    return MicroMaestroStackSize;
+                }
+                else
+                {
+                    return MiniMaestroStackSize;
+                }
+            }
+        }
+
+        public byte callStackSize
+        {
+            get
+            {
+                if (microMaestro)
+                {
+                    return MicroMaestroCallStackSize;
+                }
+                else
+                {
+                    return MiniMaestroCallStackSize;
+                }
+            }
+        }
+
 
         public static List<DeviceListItem> getConnectedDevices()
         {
@@ -222,7 +263,7 @@ namespace Pololu.Usc
             catch (NotImplementedException)
             {
                 // use vendor and product instead
-                return UsbDevice.getDeviceList(Usc.vendorID, new ushort[] { Usc.productID });
+                return UsbDevice.getDeviceList(Usc.vendorID, Usc.productIDArray);
             }
         }
 
@@ -354,6 +395,7 @@ namespace Pololu.Usc
 
                 try
                 {
+                    //                    System.Console.WriteLine((block)+": "+block_bytes[0]+" "+block_bytes[1]+" "+block_bytes[2]+" "+block_bytes[3]+" "+block_bytes[4]+" "+block_bytes[5]+" "+block_bytes[6]+" "+block_bytes[7]+" "+block_bytes[8]+" "+block_bytes[9]+" "+block_bytes[10]+" "+block_bytes[11]+" "+block_bytes[12]+" "+block_bytes[13]+" "+block_bytes[14]+" "+block_bytes[15]); // XXX
                     controlTransfer(0x40, (byte)uscRequest.REQUEST_WRITE_SCRIPT, 0, block,
                                            block_bytes);
                 }
@@ -367,11 +409,6 @@ namespace Pololu.Usc
         public void setSubroutines(Dictionary<string, ushort> subroutineAddresses,
                                    Dictionary<string, byte> subroutineCommands)
         {
-            if (subroutineAddresses.Count > 128)
-            {
-                throw new Exception("Too many subroutines (" + subroutineAddresses.Count + ")");
-            }
-
             byte[] subroutineData = new byte[256];
 
             ushort i;
@@ -382,6 +419,10 @@ namespace Pololu.Usc
             {
                 string name = kvp.Key;
                 byte bytecode = subroutineCommands[name];
+
+                if (bytecode == (byte)Opcode.CALL)
+                    continue; // skip CALLs - these do not get a position in the subroutine memory
+
                 subroutineData[2 * (bytecode - 128)] = (byte)(kvp.Value % 256);
                 subroutineData[2 * (bytecode - 128) + 1] = (byte)(kvp.Value >> 8);
             }
@@ -400,8 +441,9 @@ namespace Pololu.Usc
 
                 try
                 {
+                    //                    System.Console.WriteLine((block + subroutineOffsetBlocks)+": "+block_bytes[0]+" "+block_bytes[1]+" "+block_bytes[2]+" "+block_bytes[3]+" "+block_bytes[4]+" "+block_bytes[5]+" "+block_bytes[6]+" "+block_bytes[7]+" "+block_bytes[8]+" "+block_bytes[9]+" "+block_bytes[10]+" "+block_bytes[11]+" "+block_bytes[12]+" "+block_bytes[13]+" "+block_bytes[14]+" "+block_bytes[15]); // XXX
                     controlTransfer(0x40, (byte)uscRequest.REQUEST_WRITE_SCRIPT, 0,
-                                           (ushort)(block + Usc.subroutineOffsetBlocks),
+                                           (ushort)(block + subroutineOffsetBlocks),
                                            block_bytes);
                 }
                 catch (Exception e)
@@ -411,7 +453,20 @@ namespace Pololu.Usc
             }
         }
 
-        private const uint subroutineOffsetBlocks = 64;
+        private uint subroutineOffsetBlocks
+        {
+            get
+            {
+                switch(getProductID())
+                {
+                case 0x89: return 64;
+                case 0x8A: return 512;
+                case 0x8B: return 512;
+                case 0x8C: return 512;
+                default: throw new Exception("unknown product ID");
+                }
+            }
+        }
 
         public void setScriptDone(byte value)
         {
@@ -439,6 +494,11 @@ namespace Pololu.Usc
 
         public void reinitialize()
         {
+            reinitialize(50);
+        }
+
+        private void reinitialize(int waitTime)
+        {
             try
             {
                 controlTransfer(0x40, (byte)uscRequest.REQUEST_REINITIALIZE, 0, 0);
@@ -446,6 +506,14 @@ namespace Pololu.Usc
             catch (Exception e)
             {
                 throw new Exception("There was an error re-initializing the device.", e);
+            }
+
+            System.Threading.Thread.Sleep(waitTime);
+            if (!microMaestro)
+            {
+                // Flush out any spurious performance flags that might have occurred.
+                MaestroVariables variables;
+                getVariables(out variables);
             }
         }
 
@@ -461,10 +529,134 @@ namespace Pololu.Usc
             }
         }
 
-        public unsafe void getVariables(out uscVariables variables, out ServoStatus[] servos)
+        /// <summary>
+        /// Gets the complete set of status information for the Maestro.
+        /// </summary>
+        /// <remarks>If you are using a Mini Maestro and do not need all of
+        /// the data provided by this function, you can save some CPU time
+        /// by using the overloads with fewer arguments.</remarks>
+        public unsafe void getVariables(out MaestroVariables variables, out short[] stack, out ushort[] callStack, out ServoStatus[] servos)
         {
-            servos = new ServoStatus[servoCount];
-            byte[] array = new byte[sizeof(uscVariables) + servoCount * sizeof(ServoStatus)];
+            if (microMaestro)
+            {
+                // On the Micro Maestro, this function requires just one control transfer:
+                getVariablesMicroMaestro(out variables, out stack, out callStack, out servos);
+            }
+            else
+            {
+                // On the Mini Maestro, this function requires four control transfers:
+                getVariablesMiniMaestro(out variables);
+                getVariablesMiniMaestro(out servos);
+                getVariablesMiniMaestro(out stack);
+                getVariablesMiniMaestro(out callStack);
+            }
+        }
+
+        /// <summary>
+        /// Gets a MaestroVariables struct representing the current status
+        /// of the device.
+        /// </summary>
+        /// <remarks>If you are using the Micro Maestro and calling
+        /// getVariables more than once in quick succession,
+        /// then you can save some CPU time by just using the
+        /// overload that has 4 arguments.
+        /// </remarks>
+        public void getVariables(out MaestroVariables variables)
+        {
+            if (microMaestro)
+            {
+                ServoStatus[] servos;
+                short[] stack;
+                ushort[] callStack;
+                getVariablesMicroMaestro(out variables, out stack, out callStack, out servos);
+            }
+            else
+            {
+                getVariablesMiniMaestro(out variables);
+            }
+        }
+
+        /// <summary>
+        /// Gets an array of ServoStatus structs representing
+        /// the current status of all the channels.
+        /// </summary>
+        /// <remarks>If you are using the Micro Maestro and calling
+        /// getVariables more than once in quick succession,
+        /// then you can save some CPU time by just using the
+        /// overload that has 4 arguments.
+        /// </remarks>
+        public void getVariables(out ServoStatus[] servos)
+        {
+            if (microMaestro)
+            {
+                MaestroVariables variables;
+                short[] stack;
+                ushort[] callStack;
+                getVariablesMicroMaestro(out variables, out stack, out callStack, out servos);
+            }
+            else
+            {
+                getVariablesMiniMaestro(out servos);
+            }
+        }
+
+        /// <summary>
+        /// Gets an array of shorts[] representing the current stack.
+        /// The maximum size of the array is stackSize.
+        /// </summary>
+        /// <remarks>If you are using the Micro Maestro and calling
+        /// getVariables more than once in quick succession,
+        /// then you can save some CPU time by just using the
+        /// overload that has 4 arguments.
+        /// </remarks>
+        public void getVariables(out short[] stack)
+        {
+            if (microMaestro)
+            {
+                MaestroVariables variables;
+                ServoStatus[] servos;
+                ushort[] callStack;
+                getVariablesMicroMaestro(out variables, out stack, out callStack, out servos);
+            }
+            else
+            {
+                getVariablesMiniMaestro(out stack);
+            }
+        }
+
+        /// <summary>
+        /// Gets an array of ushorts[] representing the current stack.
+        /// The maximum size of the array is callStackSize.
+        /// </summary>
+        /// <remarks>If you are using the Micro Maestro and calling
+        /// getVariables more than once in quick succession,
+        /// then you can save some CPU time by just using the
+        /// overload that has 4 arguments.
+        /// </remarks>
+        public void getVariables(out ushort[] callStack)
+        {
+            if (microMaestro)
+            {
+                MaestroVariables variables;
+                short[] stack;
+                ServoStatus[] servos;
+                getVariablesMicroMaestro(out variables, out stack, out callStack, out servos);
+            }
+            else
+            {
+                getVariablesMiniMaestro(out callStack);
+            }
+        }
+
+        public const int MicroMaestroStackSize = 32;
+        public const int MicroMaestroCallStackSize = 10;
+
+        public const int MiniMaestroStackSize = 126;
+        public const int MiniMaestroCallStackSize = 126;
+
+        private unsafe void getVariablesMicroMaestro(out MaestroVariables variables, out short[] stack, out ushort[] callStack, out ServoStatus[] servos)
+        {
+            byte[] array = new byte[sizeof(MicroMaestroVariables) + servoCount * sizeof(ServoStatus)];
 
             try
             {
@@ -477,12 +669,116 @@ namespace Pololu.Usc
 
             fixed (byte* pointer = array)
             {
-                variables = *(uscVariables*)pointer;
-                byte i;
-                for (i = 0; i < servoCount; i++)
+                // copy the variable data
+                MicroMaestroVariables tmp = *(MicroMaestroVariables*)pointer;
+                variables.stackPointer = tmp.stackPointer;
+                variables.callStackPointer = tmp.callStackPointer;
+                variables.errors = tmp.errors;
+                variables.programCounter = tmp.programCounter;
+                variables.scriptDone = tmp.scriptDone;
+                variables.performanceFlags = 0;
+
+                servos = new ServoStatus[servoCount];
+                for (byte i = 0; i < servoCount; i++)
                 {
-                    servos[i] = *(ServoStatus*)(pointer + sizeof(uscVariables) + sizeof(ServoStatus) * i);
+                    servos[i] = *(ServoStatus*)(pointer + sizeof(MicroMaestroVariables) + sizeof(ServoStatus) * i);
                 }
+
+                stack = new short[variables.stackPointer];
+                for(byte i = 0; i < stack.Length; i++) { stack[i] = *(tmp.stack+i); }
+
+                callStack = new ushort[variables.callStackPointer];
+                for (byte i = 0; i < callStack.Length; i++) { callStack[i] = *(tmp.callStack + i); }
+            }
+        }
+
+        private unsafe void getVariablesMiniMaestro(out MaestroVariables variables)
+        {
+            try
+            {
+                // Get miscellaneous variables.
+                MiniMaestroVariables tmp;
+                UInt32 bytesRead = controlTransfer(0xC0, (byte)uscRequest.REQUEST_GET_VARIABLES, 0, 0, &tmp, (ushort)sizeof(MiniMaestroVariables));
+                if (bytesRead != sizeof(MiniMaestroVariables))
+                {
+                    throw new Exception("Short read: " + bytesRead + " < " + sizeof(MiniMaestroVariables) + ".");
+                }
+
+                // Copy the variable data
+                variables.stackPointer = tmp.stackPointer;
+                variables.callStackPointer = tmp.callStackPointer;
+                variables.errors = tmp.errors;
+                variables.programCounter = tmp.programCounter;
+                variables.scriptDone = tmp.scriptDone;
+                variables.performanceFlags = tmp.performanceFlags;
+            }
+            catch (Exception e)
+            {
+                throw new Exception("Error getting variables from device.", e);
+            }
+        }
+
+        private unsafe void getVariablesMiniMaestro(out ServoStatus[] servos)
+        {
+            try
+            {
+                byte[] servoSettingsArray = new byte[servoCount * sizeof(ServoStatus)];
+
+                // Get the raw data from the device.
+                UInt32 bytesRead = controlTransfer(0xC0, (byte)uscRequest.REQUEST_GET_SERVO_SETTINGS, 0, 0, servoSettingsArray);
+                if (bytesRead != servoSettingsArray.Length)
+                {
+                    throw new Exception("Short read: " + bytesRead + " < " + servoSettingsArray.Length + ".");
+                }
+
+                // Put the data in to a managed array object.
+                servos = new ServoStatus[servoCount];
+                fixed (byte* pointer = servoSettingsArray)
+                {
+                    for (byte i = 0; i < servoCount; i++)
+                    {
+                        servos[i] = *(ServoStatus*)(pointer + sizeof(ServoStatus) * i);
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                throw new Exception("Error getting channel settings from device.", e);
+            }
+        }
+
+        private unsafe void getVariablesMiniMaestro(out short[] stack)
+        {
+            try
+            {
+                // Get the data stack.
+                stack = new short[MiniMaestroStackSize];
+                fixed (short* pointer = stack)
+                {
+                    UInt32 bytesRead = controlTransfer(0xC0, (byte)uscRequest.REQUEST_GET_STACK, 0, 0, pointer, (ushort)(sizeof(short) * stack.Length));
+                    Array.Resize<short>(ref stack, (int)(bytesRead / sizeof(short)));
+                }
+            }
+            catch (Exception e)
+            {
+                throw new Exception("Error getting stack from device.", e);
+            }
+        }
+
+        private unsafe void getVariablesMiniMaestro(out ushort[] callStack)
+        {
+            try
+            {
+                callStack = new ushort[MiniMaestroCallStackSize];
+                fixed (ushort* pointer = callStack)
+                {
+                    UInt32 bytesRead = controlTransfer(0xC0, (byte)uscRequest.REQUEST_GET_CALL_STACK, 0, 0, pointer, (ushort)(sizeof(ushort) * callStack.Length));
+                    Array.Resize<ushort>(ref callStack, (int)(bytesRead / sizeof(ushort)));
+                }
+            }
+            catch (Exception e)
+            {
+                throw new Exception("Error getting call stack from device.", e);
             }
         }
 
@@ -526,8 +822,6 @@ namespace Pololu.Usc
 
         public void setUscSettings(UscSettings settings, bool newScript)
         {
-            setRawParameter(uscParameter.PARAMETER_SERVOS_AVAILABLE, settings.servosAvailable);
-            setRawParameter(uscParameter.PARAMETER_SERVO_PERIOD, settings.servoPeriod);
             setRawParameter(uscParameter.PARAMETER_SERIAL_MODE, (byte)settings.serialMode);
             setRawParameter(uscParameter.PARAMETER_SERIAL_FIXED_BAUD_RATE, convertBpsToSpbrg(settings.fixedBaudRate));
             setRawParameter(uscParameter.PARAMETER_SERIAL_ENABLE_CRC, (ushort)(settings.enableCrc ? 1 : 0));
@@ -537,29 +831,78 @@ namespace Pololu.Usc
             setRawParameter(uscParameter.PARAMETER_SERIAL_TIMEOUT, settings.serialTimeout);
             setRawParameter(uscParameter.PARAMETER_SCRIPT_DONE, (ushort)(settings.scriptDone ? 1 : 0));
 
+            if (servoCount == 6)
+            {
+                setRawParameter(uscParameter.PARAMETER_SERVOS_AVAILABLE, settings.servosAvailable);
+                setRawParameter(uscParameter.PARAMETER_SERVO_PERIOD, settings.servoPeriod);
+            }
+            else
+            {
+                setRawParameter(uscParameter.PARAMETER_MINI_MAESTRO_SERVO_PERIOD_L, (byte)(settings.miniMaestroServoPeriod & 0xFF));
+                setRawParameter(uscParameter.PARAMETER_MINI_MAESTRO_SERVO_PERIOD_HU, (ushort)(settings.miniMaestroServoPeriod >> 8));
+
+                byte multiplier;
+                if (settings.servoMultiplier < 1)
+                {
+                    multiplier = 0;
+                }
+                else if (settings.servoMultiplier > 256)
+                {
+                    multiplier = 255;
+                }
+                else
+                {
+                    multiplier = (byte)(settings.servoMultiplier - 1);
+                }
+                setRawParameter(uscParameter.PARAMETER_SERVO_MULTIPLIER, multiplier);
+            }
+
+            if (servoCount > 18)
+            {
+                setRawParameter(uscParameter.PARAMETER_ENABLE_PULLUPS, (ushort)(settings.enablePullups ? 1 : 0));
+            }
+
             RegistryKey key = openRegistryKey();
 
             byte ioMask = 0;
             byte outputMask = 0;
+            byte[] channelModeBytes = new byte[6]{0,0,0,0,0,0};
 
             for (byte i = 0; i < servoCount; i++)
             {
                 ChannelSetting setting = settings.channelSettings[i];
 
                 key.SetValue("servoName" + i.ToString("d2"), setting.name, RegistryValueKind.String);
-                if (setting.mode != ChannelMode.Servo)
-                {
-                    ioMask |= (byte)(1 << channelToPort(i));
 
+                if (microMaestro)
+                {
+                    if (setting.mode == ChannelMode.Input || setting.mode == ChannelMode.Output)
+                    {
+                        ioMask |= (byte)(1 << channelToPort(i));
+                    }
+                    
                     if (setting.mode == ChannelMode.Output)
                     {
                         outputMask |= (byte)(1 << channelToPort(i));
                     }
                 }
+                else
+                {
+                    channelModeBytes[i >> 2] |= (byte)((byte)setting.mode << ((i & 3) << 1));
+                }
 
+                // Make sure that HomeMode is "Ignore" for inputs.  This is also done in
+                // fixUscSettings.
+                HomeMode correctedHomeMode = setting.homeMode;
+                if (setting.mode == ChannelMode.Input)
+                {
+                    correctedHomeMode = HomeMode.Ignore;
+                }
+
+                // Compute the raw value of the "home" parameter.
                 ushort home;
-                if (setting.homeMode == HomeMode.Off) home = 0;
-                else if (setting.homeMode == HomeMode.Ignore) home = 1;
+                if (correctedHomeMode == HomeMode.Off) home = 0;
+                else if (correctedHomeMode == HomeMode.Ignore) home = 1;
                 else home = setting.home;
                 setRawParameter(specifyServo(uscParameter.PARAMETER_SERVO0_HOME, i), home);
 
@@ -571,8 +914,18 @@ namespace Pololu.Usc
                 setRawParameter(specifyServo(uscParameter.PARAMETER_SERVO0_ACCELERATION, i), setting.acceleration);
             }
 
-            setRawParameter(uscParameter.PARAMETER_IO_MASK_C, ioMask);
-            setRawParameter(uscParameter.PARAMETER_OUTPUT_MASK_C, outputMask);
+            if (microMaestro)
+            {
+                setRawParameter(uscParameter.PARAMETER_IO_MASK_C, ioMask);
+                setRawParameter(uscParameter.PARAMETER_OUTPUT_MASK_C, outputMask);
+            }
+            else
+            {
+                for (byte i = 0; i < 6; i++)
+                {
+                    setRawParameter(uscParameter.PARAMETER_CHANNEL_MODES_0_3 + i, channelModeBytes[i]);
+                }
+            }
 
             if (newScript)
             {
@@ -599,8 +952,6 @@ namespace Pololu.Usc
                 // Save the script in the registry
                 key.SetValue("script", settings.script, RegistryValueKind.String);
             }
-
-            reinitialize(); // reboot
 
             Sequencer.Sequence.saveSequencesInRegistry(settings.sequences, key);
 
@@ -691,8 +1042,6 @@ namespace Pololu.Usc
         {
             var settings = new UscSettings();
 
-            settings.servosAvailable = (byte)getRawParameter(uscParameter.PARAMETER_SERVOS_AVAILABLE);
-            settings.servoPeriod = (byte)getRawParameter(uscParameter.PARAMETER_SERVO_PERIOD);
             settings.serialMode = (uscSerialMode)getRawParameter(uscParameter.PARAMETER_SERIAL_MODE);
             settings.fixedBaudRate = convertSpbrgToBps(getRawParameter(uscParameter.PARAMETER_SERIAL_FIXED_BAUD_RATE));
             settings.enableCrc = getRawParameter(uscParameter.PARAMETER_SERIAL_ENABLE_CRC) != 0;
@@ -702,27 +1051,67 @@ namespace Pololu.Usc
             settings.serialTimeout = getRawParameter(uscParameter.PARAMETER_SERIAL_TIMEOUT);
             settings.scriptDone = getRawParameter(uscParameter.PARAMETER_SCRIPT_DONE) != 0;
 
-            byte ioMask = (byte)getRawParameter(uscParameter.PARAMETER_IO_MASK_C);
-            byte outputMask = (byte)getRawParameter(uscParameter.PARAMETER_OUTPUT_MASK_C);
+            if (servoCount == 6)
+            {
+                settings.servosAvailable = (byte)getRawParameter(uscParameter.PARAMETER_SERVOS_AVAILABLE);
+                settings.servoPeriod = (byte)getRawParameter(uscParameter.PARAMETER_SERVO_PERIOD);
+            }
+            else
+            {
+                UInt32 tmp = (UInt32)(getRawParameter(uscParameter.PARAMETER_MINI_MAESTRO_SERVO_PERIOD_HU) << 8);
+                tmp |= (byte)getRawParameter(uscParameter.PARAMETER_MINI_MAESTRO_SERVO_PERIOD_L);
+                settings.miniMaestroServoPeriod = tmp;
+
+                settings.servoMultiplier = (ushort)(getRawParameter(uscParameter.PARAMETER_SERVO_MULTIPLIER) + 1);
+            }
+
+            if (servoCount > 18)
+            {
+                settings.enablePullups = getRawParameter(uscParameter.PARAMETER_ENABLE_PULLUPS) != 0;
+            }
+
+            byte ioMask = 0;
+            byte outputMask = 0;
+            byte[] channelModeBytes = new Byte[6];
+
+            if (microMaestro)
+            {
+                ioMask = (byte)getRawParameter(uscParameter.PARAMETER_IO_MASK_C);
+                outputMask = (byte)getRawParameter(uscParameter.PARAMETER_OUTPUT_MASK_C);
+            }
+            else
+            {
+                for (byte i = 0; i < 6; i++)
+                {
+                    channelModeBytes[i] = (byte)getRawParameter(uscParameter.PARAMETER_CHANNEL_MODES_0_3 + i);
+                }
+            }
 
             for (byte i = 0; i < servoCount; i++)
             {
                 // Initialize the ChannelSettings objects and 
                 // set all parameters except name and mode.
-                ChannelSetting setting = settings.channelSettings[i] = new ChannelSetting();
+                ChannelSetting setting = new ChannelSetting();
 
-                byte bitmask = (byte)(1 << channelToPort(i));
-                if ((ioMask & bitmask) == 0)
+                if (microMaestro)
                 {
-                    setting.mode = ChannelMode.Servo;
-                }
-                else if ((outputMask & bitmask) == 0)
-                {
-                    setting.mode = ChannelMode.Input;
+                    byte bitmask = (byte)(1 << channelToPort(i));
+                    if ((ioMask & bitmask) == 0)
+                    {
+                        setting.mode = ChannelMode.Servo;
+                    }
+                    else if ((outputMask & bitmask) == 0)
+                    {
+                        setting.mode = ChannelMode.Input;
+                    }
+                    else
+                    {
+                        setting.mode = ChannelMode.Output;
+                    }
                 }
                 else
                 {
-                    setting.mode = ChannelMode.Output;
+                    setting.mode = (ChannelMode)((channelModeBytes[i >> 2] >> ((i & 3)<<1)) & 3);
                 }
 
                 ushort home = getRawParameter(specifyServo(uscParameter.PARAMETER_SERVO0_HOME, i));
@@ -748,6 +1137,8 @@ namespace Pololu.Usc
                 setting.range = (ushort)(127 * getRawParameter(specifyServo(uscParameter.PARAMETER_SERVO0_RANGE, i)));
                 setting.speed = exponentialSpeedToNormalSpeed((byte)getRawParameter(specifyServo(uscParameter.PARAMETER_SERVO0_SPEED, i)));
                 setting.acceleration = (byte)getRawParameter(specifyServo(uscParameter.PARAMETER_SERVO0_ACCELERATION, i));
+
+                settings.channelSettings.Add(setting);
             }
 
             RegistryKey key = openRegistryKey();
@@ -791,11 +1182,18 @@ namespace Pololu.Usc
             return settings;
         }
 
-        public int maxScriptLength
+        public ushort maxScriptLength
         {
             get
             {
-                return 1024;
+                if (microMaestro)
+                {
+                    return 1024;
+                }
+                else
+                {
+                    return 8192;
+                }
             }
         }
 
@@ -810,14 +1208,36 @@ namespace Pololu.Usc
 
         public void restoreDefaultConfiguration()
         {
-            setRawParameterNoChecks((byte)uscParameter.PARAMETER_INITIALIZED, (ushort)0xFF, 2);
-            reinitialize();
-            System.Threading.Thread.Sleep(1500);
+            setRawParameterNoChecks((byte)uscParameter.PARAMETER_INITIALIZED, (ushort)0xFF, 1);
+            reinitialize(1500);
         }
 
         public void fixSettings(UscSettings settings, List<string> warnings)
         {
-            if (firmwareVersionMajor <= 1 && firmwareVersionMinor == 0)
+            // Discard extra channels if needed.
+            if (settings.servoCount > this.servoCount)
+            {
+                warnings.Add("The settings loaded include settings for " + settings.servoCount + " channels, but this device has only " + this.servoCount + " channels.  The extra channel settings will be ignored.");
+                settings.channelSettings.RemoveRange(this.servoCount, settings.servoCount - this.servoCount);
+            }
+
+            // Add channels if needed.
+            if (settings.servoCount < this.servoCount)
+            {
+                warnings.Add("The settings loaded include settings for only " + settings.servoCount + " channels, but this device has " + this.servoCount + " channels.  The other channels will be initialized with default settings.");
+                while(settings.servoCount < this.servoCount)
+                {
+                    ChannelSetting cs = new ChannelSetting();
+                    if (this.microMaestro && settings.servosAvailable <= settings.servoCount)
+                    {
+                        cs.mode = ChannelMode.Input;
+                    }
+                    settings.channelSettings.Add(cs);
+                }
+            }
+
+            // Prevent users from experiencing the bug with Ignore mode in Micro Maestro v1.00.
+            if (settings.servoCount == 6 && firmwareVersionMajor <= 1 && firmwareVersionMinor == 0)
             {
                 bool servoIgnoreWarningShown = false;
 
@@ -829,19 +1249,47 @@ namespace Pololu.Usc
 
                         if (!servoIgnoreWarningShown)
                         {
-                            warnings.Add("Ignore mode does not work for servo channels in firmware versions prior to 1.01.\nYour channels will be changed to Off mode.\nVisit Pololu.com for a firmware upgrade.");
+                            warnings.Add("Ignore mode does not work for servo channels on the Micro Maestro 6-Channel Servo Controller firmware versions prior to 1.01.\nYour channels will be changed to Off mode.\nVisit Pololu.com for a firmware upgrade.");
                             servoIgnoreWarningShown = true;
                         }
                     }
                 }
             }
 
-            // TODO: implement more checks:
-            // Set homeMode to ignore for inputs
-            // Set channel stuff to be correct based on channel mode
-            // Make sure max and min are okay for the servo channels.
-            // Make sure serial device number is less than 128
-            // Make sure fixed baud rate is reasonable
+            // Set homeMode to ignore for inputs (silently, because it's not the user's fault).
+            foreach (ChannelSetting cs in settings.channelSettings)
+            {
+                switch (cs.mode)
+                {
+                    case ChannelMode.Input:
+                    {
+                        cs.homeMode = HomeMode.Ignore;
+                        cs.minimum = 0;
+                        cs.maximum = 1024; // Should probably be 1023, but this is the tradition from the Micro Maestros.
+                        cs.speed = 0;
+                        cs.acceleration = 0;
+                        cs.neutral = 1024;
+                        cs.range = 1905;
+                        break;
+                    }
+                    case ChannelMode.Output:
+                    {
+                        cs.minimum = 3986;
+                        cs.maximum = 8000;
+                        cs.speed = 0;
+                        cs.acceleration = 0;
+                        cs.neutral = 6000;
+                        cs.range = 1905;
+                        break;
+                    }
+                }
+            }
+
+            if (settings.serialDeviceNumber >= 128)
+            {
+                settings.serialDeviceNumber = 12;
+                warnings.Add("The serial device number must be less than 128.  It will be changed to 12.");
+            }
         }
 
         protected static Range getRange(uscParameter parameterId)
@@ -855,16 +1303,19 @@ namespace Pololu.Usc
                     return Range.u8;
                 case uscParameter.PARAMETER_SERVO_PERIOD:
                     return Range.u8;
-                case uscParameter.PARAMETER_IO_MASK_A:
-                case uscParameter.PARAMETER_IO_MASK_B:
-                case uscParameter.PARAMETER_IO_MASK_C:
-                case uscParameter.PARAMETER_IO_MASK_D:
-                case uscParameter.PARAMETER_IO_MASK_E:
-                case uscParameter.PARAMETER_OUTPUT_MASK_A:
-                case uscParameter.PARAMETER_OUTPUT_MASK_B:
-                case uscParameter.PARAMETER_OUTPUT_MASK_C:
-                case uscParameter.PARAMETER_OUTPUT_MASK_D:
-                case uscParameter.PARAMETER_OUTPUT_MASK_E:
+                case uscParameter.PARAMETER_MINI_MAESTRO_SERVO_PERIOD_L:
+                    return Range.u8;
+                case uscParameter.PARAMETER_MINI_MAESTRO_SERVO_PERIOD_HU:
+                    return Range.u16;
+                case uscParameter.PARAMETER_SERVO_MULTIPLIER:
+                    return Range.u8;
+                case uscParameter.PARAMETER_CHANNEL_MODES_0_3:
+                case uscParameter.PARAMETER_CHANNEL_MODES_4_7:
+                case uscParameter.PARAMETER_CHANNEL_MODES_8_11:
+                case uscParameter.PARAMETER_CHANNEL_MODES_12_15:
+                case uscParameter.PARAMETER_CHANNEL_MODES_16_19:
+                case uscParameter.PARAMETER_CHANNEL_MODES_20_23:
+                case uscParameter.PARAMETER_ENABLE_PULLUPS:
                     return Range.u8;
                 case uscParameter.PARAMETER_SERIAL_MODE:
                     return new Range(1, 0, 3);
@@ -879,7 +1330,7 @@ namespace Pololu.Usc
                 case uscParameter.PARAMETER_SERIAL_DEVICE_NUMBER:
                     return Range.u7;
                 case uscParameter.PARAMETER_SERIAL_FIXED_BAUD_RATE:
-                    return Range.u16; // Note: this is not used!
+                    return Range.u16;
                 case uscParameter.PARAMETER_SERIAL_MINI_SSC_OFFSET:
                     return new Range(1, 0, 254);
                 case uscParameter.PARAMETER_SCRIPT_CRC:
@@ -935,6 +1386,19 @@ namespace Pololu.Usc
             internal static Range u8 = new Range(1, 0, 0xFF);
             internal static Range u7 = new Range(1, 0, 0x7F);
             internal static Range boolean = new Range(1, 0, 1);
+        }
+
+        public void setPWM(ushort dutyCycle, ushort period)
+        {
+            controlTransfer(0x40, (byte)uscRequest.REQUEST_SET_PWM, dutyCycle, period);
+        }
+
+        public void disablePWM()
+        {
+            if (getProductID() == 0x008a)
+                setTarget(8, 0);
+            else
+                setTarget(12, 0);
         }
     }
 }

@@ -31,10 +31,10 @@ namespace Pololu.Jrk
         {
             switch (getProductID())
             {
-                case "0083":
+                case 0x0083:
                     product = jrkProduct.umc01a;
                     break;
-                case "0085":
+                case 0x0085:
                     product = jrkProduct.umc02a;
                     break;
                 default:

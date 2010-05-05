@@ -20,6 +20,9 @@ namespace Pololu.Usc
         public Byte servosAvailable = 6;
 
         /// <summary>
+        /// This setting only applies to the Micro Maestro.
+        /// For the Mini Maestro, see miniMaestroServoPeriod.
+        /// 
         /// The total time allotted to each servo channel, in units of
         /// 256/12 = 21.33333 us.  The unit for this one are unusual, because
         /// that is the way it is stored on the device and its unit is not
@@ -30,6 +33,28 @@ namespace Pololu.Usc
         /// pulses on a given channel.
         /// </summary>
         public Byte servoPeriod = 156;
+
+        /// <summary>
+        /// This setting only applies to the Mini Maestro.
+        /// For the Micro Maestro, see microMaestroServoPeriod.
+        /// 
+        /// The length of the time period in which the Mini Maestro sends pulses
+        /// to all the enabled servos, in units of quarter microseconds.
+        /// 
+        /// Valid values for this parameter are 0 to 16,777,215.  But 
+        /// 
+        /// Default is 80000, so each servo receives a pulse every 20 ms (50 Hz).
+        /// </summary>
+        public UInt32 miniMaestroServoPeriod = 80000;
+
+        /// <summary>
+        /// This setting only applied to the Mini Maestro.
+        /// The non-multiplied servos have a period specified by miniMaestroServoPeriod.
+        /// The multiplied servos have a period specified by miniMaestroServoPeriod*servoMultiplier.
+        /// 
+        /// Valid values for this parameter are 1 to 256.
+        /// </summary>
+        public UInt16 servoMultiplier = 1;
 
         /// <summary>
         /// Determines how serial bytes flow between the two USB COM ports, the TTL port,
@@ -96,7 +121,16 @@ namespace Pololu.Usc
         /// A list of the configurable parameters for each channel, including
         /// name, type, home type, home position, range, neutral, min, max.
         /// </summary>
-        public IList<ChannelSetting> channelSettings;
+        public List<ChannelSetting> channelSettings;
+
+        /// <summary>
+        /// If true, this setting enables pullups for each channel 18-20 which
+        /// is configured as an input.  This makes the input value be high by
+        /// default, allowing the user to connect a button or switch without
+        /// supplying their own pull-up resistor.  Thi setting only applies to
+        /// the Mini Maestro 24-Channel Servo Controller.
+        /// </summary>
+        public bool enablePullups = false;
 
         /// <summary>
         /// true if when loading the script, the checksum did not match or there was an error in compilation, so that it had to be reset to an empty script
@@ -118,7 +152,7 @@ namespace Pololu.Usc
         {
             privateScript = null;
 
-            privateProgram = BytecodeReader.Read(script);
+            privateProgram = BytecodeReader.Read(script, servoCount != 6);
 
             // If no exceptions were raised, set the script.
             privateScript = script;
@@ -128,7 +162,14 @@ namespace Pololu.Usc
         {
             get
             {
-                return Usc.periodToMicroseconds(servoPeriod, servosAvailable);
+                if (servoCount == 6)
+                {
+                    return Usc.periodToMicroseconds(servoPeriod, servosAvailable);
+                }
+                else
+                {
+                    return miniMaestroServoPeriod / 4;
+                }
             }
         }
 
@@ -141,17 +182,17 @@ namespace Pololu.Usc
 
         public UscSettings()
         {
-            channelSettings = new ChannelSetting[servoCount];
+            channelSettings = new List<ChannelSetting>();
         }
 
         /// <summary>
-        /// The number of servos on the device.  For now, always returns 6.
+        /// The number of servos on the device.
         /// </summary>
         public byte servoCount
         {
             get
             {
-                return 6;
+                return (byte)channelSettings.Count;
             }
         }
     }
@@ -217,7 +258,7 @@ namespace Pololu.Usc
 
         /// <summary>
         /// Speed: the maximum change in position (qus) per update.  0 means no limit.
-        /// Units are 0.25us/(10 ms) = 25 us/s.
+        /// Units depend on your settings.
         /// Stored on device in this format: [0-31]*2^[0-7]
         /// Range = 0-31*2^7 = 0-3968.
         /// Increment = 1.
@@ -230,7 +271,7 @@ namespace Pololu.Usc
 
         /// <summary>
         /// Acceleration: the max change in speed every 80 ms.  0 means no limit.
-        /// Units are speed/(80 ms) = 312.5 us/s^2
+        /// Units depend on your settings.
         /// Range = 0-255.
         /// Increment = 1.
         /// </summary>
@@ -239,9 +280,10 @@ namespace Pololu.Usc
 
     public enum ChannelMode
     {
-        Servo,
-        Output,
-        Input
+        Servo=0,
+        ServoMultiplied=1,
+        Output=2,
+        Input = 3,
     }
 
     public enum HomeMode
