@@ -1,6 +1,6 @@
 Pololu USB Software Development Kit
 
-Release Date: 2010-05-05
+Release Date: YYYY-MM-DD
 http://www.pololu.com/
 
 
@@ -59,6 +59,11 @@ free C# development environment from Microsoft, available at:
 
 Our code will also work with full, paid versions of Visual Studio, if
 that is an option for you.
+
+The Visual Studio files in this SDK were built using Visual Studio 2008.
+If you open any of the projects or solutions with a newer version of
+Visual Studio, it will walk you through the simple steps needed to
+migrate that project or solution to work with the new version.
 
 
 == Getting Started with the USB AVR Programmer in Windows ==

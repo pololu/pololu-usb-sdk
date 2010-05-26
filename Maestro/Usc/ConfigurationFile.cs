@@ -443,11 +443,7 @@ namespace Pololu.Usc
                 writer.WriteAttributeString("name", sequence.name);
                 foreach (Frame frame in sequence.frames)
                 {
-                    writer.WriteStartElement("Frame");
-                    writer.WriteAttributeString("name", frame.name);
-                    writer.WriteAttributeString("duration", frame.length_ms.ToString());
-                    writer.WriteString(frame.getTargetsString());
-                    writer.WriteEndElement();
+                    frame.writeXml(writer);
                 }
                 writer.WriteEndElement();
             }

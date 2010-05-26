@@ -128,8 +128,7 @@ namespace Pololu.Usc.Sequencer
         private string generateScript(List<byte> enabled_channels, List<List<byte>> needed_channel_lists)
         {
             string script = "";
-            bool first_time = true;
-            ushort[] last_targets = null; // need to initialize to avoid compiler error
+            Frame last_frame = null; // need to initialize to avoid compiler error
 
             foreach (Frame frame in frames)
             {
@@ -142,16 +141,15 @@ namespace Pololu.Usc.Sequencer
                 // should never change, but we skip them anyway.
                 foreach (byte channel in enabled_channels)
                 {
-                    if (first_time || frame.targets[channel] != last_targets[channel])
+                    if (last_frame == null || frame[channel] != last_frame[channel])
                     {
                         needed_channels.Add(channel);
-                        changed_targets.Add(frame.targets[channel]);
+                        changed_targets.Add(frame[channel]);
                     }
                 }
-                first_time = false;
 
                 // set last_targets
-                last_targets = (ushort[])frame.targets.Clone();
+                last_frame = frame;
 
                 if (changed_targets.Count != 0)
                 {
