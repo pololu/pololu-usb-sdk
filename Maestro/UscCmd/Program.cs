@@ -5,6 +5,11 @@ using System.Reflection;
 using Pololu.UsbWrapper;
 using Pololu.Usc.Bytecode;
 
+/* CHANGELOG:
+ * 2010-10-13: Changed assembly version to 1.3.2.1, and fixed a bug with the --sub command
+ *   that was always changing the high byte to 0.
+ */
+
 namespace Pololu.Usc.UscCmd
 {
     /// <summary>
@@ -213,9 +218,9 @@ namespace Pololu.Usc.UscCmd
                 try
                 {
                     if(parts[0].StartsWith("0x"))
-                        address = (byte)Int32.Parse(parts[0].Substring(2),System.Globalization.NumberStyles.AllowHexSpecifier);
+                        address = byte.Parse(parts[0].Substring(2),System.Globalization.NumberStyles.AllowHexSpecifier);
                     else
-                        address = (byte)Int32.Parse(parts[0]);
+                        address = byte.Parse(parts[0]);
                 }
                 catch(FormatException)
                 {
@@ -226,9 +231,9 @@ namespace Pololu.Usc.UscCmd
                     try
                     {
                         if(parts[1].StartsWith("0x"))
-                            parameter = (byte)Int32.Parse(parts[1].Substring(2),System.Globalization.NumberStyles.AllowHexSpecifier);
+                            parameter = short.Parse(parts[1].Substring(2),System.Globalization.NumberStyles.AllowHexSpecifier);
                         else
-                            parameter = (byte)Int32.Parse(parts[1]);
+                            parameter = short.Parse(parts[1]);
                     }
                     catch(FormatException)
                     {

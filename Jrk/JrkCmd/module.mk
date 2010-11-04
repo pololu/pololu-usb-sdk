@@ -1,5 +1,5 @@
 # Generate a unique list of files that need to be in the same
-# directory as UscCmd at runtime (runtime dependencies).
+# directory as this program at runtime (runtime dependencies).
 JrkCmd_runtime := $(sort $(UsbWrapper_lib) $(Jrk_lib))
 
 # Compile-time dependencies.

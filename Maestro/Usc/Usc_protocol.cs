@@ -299,9 +299,9 @@ namespace Pololu.Usc
         SERIAL_MODE_USB_DUAL_PORT = 0,
 
         ///<summary>On the Command Port, user can send commands to Maestro and
-        // simultaneously transmit bytes on the UART TX line, and user
-        // can receive bytes from the Maestro and the UART RX line.
-        // TTL port does not do anything.</summary>
+        /// simultaneously transmit bytes on the UART TX line, and user
+        /// can receive bytes from the Maestro and the UART RX line.
+        /// TTL port does not do anything.</summary>
         SERIAL_MODE_USB_CHAINED = 1,
 
         /// <summary>

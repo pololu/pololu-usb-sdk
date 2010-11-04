@@ -1,9 +1,9 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="3.5" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5" DefaultTargets="Build">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>9.0.30729</ProductVersion>
+    <ProductVersion>9.0.21022</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{3CE41957-F003-4EEF-82AB-3EBB2F88DDBC}</ProjectGuid>
     <OutputType>Library</OutputType>
@@ -33,8 +33,9 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <DocumentationFile>
-    </DocumentationFile>
+    <DocumentationFile>bin\Release\Usc.xml</DocumentationFile>
+    <NoWarn>
+    </NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <DebugSymbols>true</DebugSymbols>
@@ -55,7 +56,7 @@
     <ErrorReport>prompt</ErrorReport>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="System" />
+    <Reference Include="System"/>
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
@@ -65,32 +66,26 @@
     <Reference Include="System.Data.DataSetExtensions">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
+    <Reference Include="System.Data"/>
+    <Reference Include="System.Xml"/>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ConfigurationFile.cs" />
-    <Compile Include="IUscSettingsHolder.cs" />
-    <Compile Include="Usc.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="UscSettings.cs" />
-    <Compile Include="Usc_protocol.cs" />
+    <Compile Include="ConfigurationFile.cs"/>
+    <Compile Include="IUscSettingsHolder.cs"/>
+    <Compile Include="Usc.cs"/>
+    <Compile Include="Properties\AssemblyInfo.cs"/>
+    <Compile Include="UscSettings.cs"/>
+    <Compile Include="Usc_protocol.cs"/>
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="UsbWrapper">
-        <SpecificVersion>False</SpecificVersion>
-        <HintPath>..\..\UsbWrapper_Windows\UsbWrapper.dll</HintPath>
-    </Reference>
-    <Reference Include="Bytecode">
-        <SpecificVersion>False</SpecificVersion>
-        <HintPath>..\Bytecode\Bytecode.dll</HintPath>
-    </Reference>
+    
+    
     <ProjectReference Include="..\Sequencer\Sequencer.csproj">
       <Project>{2BCD2482-D498-45F1-9F97-96B7DCC529E9}</Project>
       <Name>Sequencer</Name>
     </ProjectReference>
-  </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Reference Include="UsbWrapper"><SpecificVersion>False</SpecificVersion><HintPath>..\..\UsbWrapper_Windows\UsbWrapper.dll</HintPath></Reference><Reference Include="Bytecode"><SpecificVersion>False</SpecificVersion><HintPath>..\Bytecode\Bytecode.dll</HintPath></Reference></ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets"/>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

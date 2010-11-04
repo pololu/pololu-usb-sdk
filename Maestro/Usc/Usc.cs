@@ -118,8 +118,6 @@ namespace Pololu.Usc
         /// The approximate number of microseconds represented by the servo
         /// period when PARAMETER_SERVO_PERIOD is set to this value.
         /// </summary>
-        /// <param name="period"></param>
-        /// <returns></returns>
         public static decimal periodToMicroseconds(ushort period, byte servos_available)
         {
             return (decimal)period * 256M * servos_available / 12M;
@@ -153,8 +151,6 @@ namespace Pololu.Usc
         /// The converts from bps to SPBRG, so it is the opposite of convertSpbrgToBps.
         /// The purse math formula is spbrg = INSTRUCTION_FREQUENCY/Baud - 1.
         /// </summary>
-        /// <param name="value"></param>
-        /// <returns></returns>
         private static UInt16 convertBpsToSpbrg(UInt32 bps)
         {
             if (bps == 0)
@@ -195,8 +191,7 @@ namespace Pololu.Usc
         /// given the corresponding parameter number for servo 0.
         /// </summary>
         /// <param name="p">e.g. PARAMETER_SERVO0_HOME</param>
-        /// <param name="i"></param>
-        /// <returns></returns>
+        /// <param name="servo">Channel number.</param>
         uscParameter specifyServo(uscParameter p, byte servo)
         {
             return (uscParameter)((byte)(p) + servo * servoParameterBytes);

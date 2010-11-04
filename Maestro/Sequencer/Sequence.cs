@@ -3,6 +3,8 @@ using Microsoft.Win32;
 using System.Text.RegularExpressions;
 using System;
 
+// TODO: stop suppressing error 1591 (in the project properties) and add XML comments for everything in this assembly
+
 namespace Pololu.Usc.Sequencer
 {
     public class Sequence
@@ -123,8 +125,6 @@ namespace Pololu.Usc.Sequencer
         /// Generates the script for this sequence - just the code for calling the frame functions.
         /// Adds any channel lists for required frame commands to the needed_channel_lists array.
         /// </summary>
-        /// <param name="needed_channel_lists"></param>
-        /// <returns></returns>
         private string generateScript(List<byte> enabled_channels, List<List<byte>> needed_channel_lists)
         {
             string script = "";

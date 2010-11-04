@@ -265,7 +265,7 @@ namespace Pololu.Usc
                 parseBool(xParams["ScriptDone"], ref settings.scriptDone, "ScriptDone", warnings);
             }
 
-            /** These parameters are optional because they don't apply to all Maestros. **/
+            // These parameters are optional because they don't apply to all Maestros.
             if (xParams.ContainsKey("ServosAvailable"))
             {
                 parseU8(xParams["ServosAvailable"], ref settings.servosAvailable, "ServosAvailable", warnings);
@@ -404,7 +404,7 @@ namespace Pololu.Usc
 
             writer.WriteStartElement("Channels");
 
-            /** Attributes of the Channels tag **/
+            // Attributes of the Channels tag
             if (settings.servoCount == 6)
             {
                 writer.WriteAttributeString("ServosAvailable", settings.servosAvailable.ToString());

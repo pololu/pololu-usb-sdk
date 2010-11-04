@@ -17,11 +17,13 @@ namespace Pololu.UsbWrapper
     /// </summary>
     public class DeviceListItem
     {
-        String privateText;
-            
+        private String privateText;
+
         /// <summary>
-        /// Gets the text to display to the user in the list to represent this
-        /// device.  Typically text is "#" + serialNumberString.
+        /// The text to display to the user in the list to represent this
+        /// device.  By default, this text is "#" + serialNumberString,
+        /// but it can be changed to suit the application's needs
+        /// (for example, adding model information to it).
         /// </summary>
         public String text
         {
@@ -29,9 +31,13 @@ namespace Pololu.UsbWrapper
             {
                 return privateText;
             }
+            set
+            {
+                privateText = value;
+            }
         }
 
-        String privateSerialNumber;
+        readonly String privateSerialNumber;
 
         /// <summary>
         /// Gets the serial number.
@@ -44,10 +50,10 @@ namespace Pololu.UsbWrapper
             }
         }
 
-        IntPtr privateDevicePointer;
+        readonly IntPtr privateDevicePointer;
 
         /// <summary>
-        /// Gets the product Id
+        /// Gets the device pointer.
         /// </summary>
         internal IntPtr devicePointer
         {
@@ -57,6 +63,19 @@ namespace Pololu.UsbWrapper
             }
         }
 
+        readonly UInt16 privateProductId;
+
+        /// <summary>
+        /// Gets the USB product ID of the device.
+        /// </summary>
+        public UInt16 productId
+        {
+            get
+            {
+                return privateProductId;
+            }    
+        }
+        
         /// <summary>
         /// true if the devices are the same
         /// </summary>
@@ -73,15 +92,16 @@ namespace Pololu.UsbWrapper
         /// <param name="text"></param>
         public static DeviceListItem CreateDummyItem(String text)
         {
-            var item = new DeviceListItem(IntPtr.Zero,text,"");
+            var item = new DeviceListItem(IntPtr.Zero,text,"",0);
             return item;
         }
 
-        internal DeviceListItem(IntPtr devicePointer, string text, string serialNumber)
+        internal DeviceListItem(IntPtr devicePointer, string text, string serialNumber, UInt16 productId)
         {
             privateDevicePointer = devicePointer;
             privateText = text;
             privateSerialNumber = serialNumber;
+            privateProductId = productId;
         }
 
         ~DeviceListItem()
@@ -249,15 +269,15 @@ namespace Pololu.UsbWrapper
         internal static unsafe string getSerialNumber(IntPtr device_handle)
         {
             LibusbDeviceDescriptor descriptor = getDeviceDescriptor(device_handle);
-            byte[] buffer = new byte[18];
+            byte[] buffer = new byte[100];
             int length;
             fixed(byte* p = buffer)
             {
-                length = LibUsb.throwIfError(UsbDevice.libusbGetStringDescriptorASCII(device_handle, descriptor.iSerialNumber, p, 18));
+                length = LibUsb.throwIfError(UsbDevice.libusbGetStringDescriptorASCII(device_handle, descriptor.iSerialNumber, p, buffer.Length), "Error getting serial number string from device (pid="+descriptor.idProduct.ToString("x")+", vid="+descriptor.idVendor.ToString("x")+").");
             }
-            int i;
+
             String serial_number = "";
-            for(i=0;i<length;i++)
+            for(int i=0;i<length;i++)
             {
                 serial_number += (char)buffer[i];
             }
@@ -289,7 +309,7 @@ namespace Pololu.UsbWrapper
         
     }
 
-    public abstract class UsbDevice
+    public abstract class UsbDevice : IDisposable
     {
         protected ushort getProductID()
         {
@@ -353,11 +373,21 @@ namespace Pololu.UsbWrapper
         }
 
         /// <summary>
-        /// disconnects from the usb device
+        /// disconnects from the usb device.  This is the same as Dispose().
         /// </summary>
         public void disconnect()
         {
             libusbClose(deviceHandle);
+        }
+
+        /// <summary>
+        /// Disconnects from the USB device, freeing all resources
+        /// that were allocated when the connection was made.
+        /// This is the same as disconnect().
+        /// </summary>
+        public void Dispose()
+        {
+            disconnect();
         }
 
         [DllImport("libusb-1.0", EntryPoint = "libusb_control_transfer")]
@@ -448,7 +478,9 @@ namespace Pololu.UsbWrapper
             var list = new List<DeviceListItem>();
 
             IntPtr* device_list;
-            int count = LibUsb.throwIfError(UsbDevice.libusbGetDeviceList(LibUsb.context,out device_list));
+            int count = LibUsb.throwIfError(UsbDevice.libusbGetDeviceList(LibUsb.context, out device_list),
+                                            "Error from libusb_get_device_list.");
+
             int i;
             for(i=0;i<count;i++)
             {
@@ -462,13 +494,14 @@ namespace Pololu.UsbWrapper
                         LibUsb.throwIfError(UsbDevice.libusbOpen(device,out device_handle),
                                             "Error connecting to device to get serial number ("+(i+1)+" of "+count+", "+device.ToString("x8")+").");
 
-                        string s = "#" + LibUsb.getSerialNumber(device_handle);
-                        list.Add(new DeviceListItem(device,s,s.Substring(1)));
+                        string serialNumber = LibUsb.getSerialNumber(device_handle);
+                        list.Add(new DeviceListItem(device, "#"+serialNumber, serialNumber, productId));
 
                         UsbDevice.libusbClose(device_handle);
                     }
                 }
             }
+
 
             // Free device list without unreferencing.
             // Unreference/free the individual devices in the
