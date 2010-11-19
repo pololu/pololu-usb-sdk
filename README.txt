@@ -1,6 +1,6 @@
 Pololu USB Software Development Kit
 
-Release Date: 2010-11-04
+Release Date: 2010-11-19
 http://www.pololu.com/
 
 
@@ -20,6 +20,7 @@ virtual COM ports).  The supported devices are:
   - Mini Maestro 18-Channel USB Servo Controller (#1354, #1355)
   - Mini Maestro 24-Channel USB Servo Controller (#1356, #1357)
 * Simple Motor Controllers:
+  - Simple Motor Controller 18v7 (#1372, #1373)
   - Simple High-Power Motor Controller 18v15 (#1376, #1377)
   - Simple High-Power Motor Controller 24v12 (#1378, #1379)
   - Simple High-Power Motor Controller 18v25 (#1381)

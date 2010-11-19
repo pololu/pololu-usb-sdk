@@ -26,12 +26,12 @@ namespace Pololu.SimpleMotorController
         /// <summary>
         /// These are the USB product IDs of the Simple Motor Controllers.
         /// </summary>
-        public static UInt16[] productIDs = new UInt16[]{0x98,0x9A,0x9C,0x9E};
+        public static UInt16[] productIDs = new UInt16[]{0x98,0x9A,0x9C,0x9E,0xA1};
 
         /// <summary>
         /// These are the USB product IDs for the bootloaders of the Simple Motor Controllers.
         /// </summary>
-        public static UInt16[] bootloaderProductIDs = new UInt16[]{0x97,0x99,0x9B,0x9D};
+        public static UInt16[] bootloaderProductIDs = new UInt16[]{0x97,0x99,0x9B,0x9D,0xA0};
 
         /// <summary>
         /// The channels that are available on this device.
@@ -85,6 +85,8 @@ namespace Pololu.SimpleMotorController
                 case 0x9C: return "18v25";
                 case 0x9D: return "24v23 bootloader";
                 case 0x9E: return "24v23";
+                case 0xA0: return "18v7 bootloader";
+                case 0xA1: return "18v7";
                 default: return "Unknown (" + productId + ")"; // do NOT throw an exception because this string isn't critical
             }
         }
@@ -106,6 +108,8 @@ namespace Pololu.SimpleMotorController
                 case 0x9C: return "Pololu Simple High-Power Motor Controller 18v25";
                 case 0x9D: return "Pololu Simple High-Power Motor Controller 24v23 Bootloader";
                 case 0x9E: return "Pololu Simple High-Power Motor Controller 24v23";
+                case 0xA0: return "Pololu Simple Motor Controller 18v7 bootloader";
+                case 0xA1: return "Pololu Simple Motor Controller 18v7";
                 default: return "Unknown (" + productId + ")"; // do NOT throw an exception because this string isn't critical
             }
         }
