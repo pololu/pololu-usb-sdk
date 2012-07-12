@@ -145,6 +145,12 @@
             </summary>
             <param name="subroutine"></param>
         </member>
+        <member name="M:Pololu.Usc.Usc.setSubroutines(System.Collections.Generic.Dictionary{System.String,System.UInt16},System.Collections.Generic.Dictionary{System.String,System.Byte})">
+            <remarks>
+            Prior to 2011-7-20, this function had a bug in it that made
+            subroutines 64-123 not work!
+            </remarks>
+        </member>
         <member name="M:Pololu.Usc.Usc.getVariables(Pololu.Usc.MaestroVariables@,System.Int16[]@,System.UInt16[]@,Pololu.Usc.ServoStatus[]@)">
             <summary>
             Gets the complete set of status information for the Maestro.

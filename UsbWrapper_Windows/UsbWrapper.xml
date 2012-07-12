@@ -124,7 +124,6 @@
         
         
         
-        
         <member name="T:Pololu.UsbWrapper.Usb">
             <summary>
             A static class that has some methods for interacting with the operating

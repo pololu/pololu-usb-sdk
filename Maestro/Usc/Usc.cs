@@ -1,4 +1,8 @@
-﻿using System;
+﻿/* Change Log:
+ * 2011-07-20: Fixed a bug in setSubroutines that made subroutines 64-127 not work.
+ */
+
+using System;
 using System.Collections.Generic;
 using System.Text;
 using Pololu.UsbWrapper;
@@ -401,13 +405,17 @@ namespace Pololu.Usc
             }
         }
 
+        /// <remarks>
+        /// Prior to 2011-7-20, this function had a bug in it that made
+        /// subroutines 64-123 not work!
+        /// </remarks>
         public void setSubroutines(Dictionary<string, ushort> subroutineAddresses,
                                    Dictionary<string, byte> subroutineCommands)
         {
             byte[] subroutineData = new byte[256];
 
             ushort i;
-            for (i = 0; i < 128; i++)
+            for (i = 0; i < 256; i++)
                 subroutineData[i] = 0xFF; // initialize to the default flash state
 
             foreach (KeyValuePair<string, ushort> kvp in subroutineAddresses)
@@ -423,7 +431,7 @@ namespace Pololu.Usc
             }
 
             ushort block;
-            for (block = 0; block < 8; block++)
+            for (block = 0; block < 16; block++)
             {
                 // write each block in a separate request
                 byte[] block_bytes = new byte[16];
@@ -443,7 +451,7 @@ namespace Pololu.Usc
                 }
                 catch (Exception e)
                 {
-                    throw new Exception("There was an error writing subroutine block " + block, e);
+                    throw new Exception("There was an error writing subroutine block " + block + ".", e);
                 }
             }
         }

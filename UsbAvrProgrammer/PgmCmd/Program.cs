@@ -341,10 +341,10 @@ namespace Pololu.UsbAvrProgrammer.PgmCmd
                     break;
                 case ProgrammingError.IdleForTooLong:
                     Console.Write("Idle for too long\n" +
-                        "    The programmer received no programming commands from the computer for more\n" +
-                        "    than 0.3 seconds, so it left programming mode.  Make sure that the\n" +
-                        "    programming software does not wait too long between successive programming\n" +
-                        "    commands.\n");
+                        "    The programmer received no programming commands from the computer for a\n" +
+                        "    time longer than the timeout period, so it left programming mode.  Make\n" +
+                        "    sure that the programming software does not wait too long between\n" +
+                        "    successive programming commands.\n");
                     break;
                 case ProgrammingError.UsbNotConfigured:
                     Console.Write("USB not configured\n" +

@@ -1,6 +1,6 @@
 Pololu USB Software Development Kit
 
-Release Date: 2010-11-19
+Release Date: 2012-07-12
 http://www.pololu.com/
 
 

@@ -327,13 +327,9 @@ namespace Pololu.UsbWrapper
 
         protected unsafe void controlTransfer(byte RequestType, byte Request, ushort Value, ushort Index)
         {
-            int ret;
-            ret = libusbControlTransfer(deviceHandle, RequestType, Request,
+            int ret = libusbControlTransfer(deviceHandle, RequestType, Request,
                                         Value, Index, (byte*)0, 0, (ushort)5000);
-            if(ret != 0)
-            {
-                throw new Exception("Control transfer failed.");
-            }
+            LibUsb.throwIfError(ret,"Control transfer failed");
         }
 
         protected unsafe uint controlTransfer(byte RequestType, byte Request, ushort Value, ushort Index, byte[] data)
@@ -347,10 +343,8 @@ namespace Pololu.UsbWrapper
 
         protected unsafe uint controlTransfer(byte RequestType, byte Request, ushort Value, ushort Index, void * data, ushort length)
         {
-            int ret;
-            ret = libusbControlTransfer(deviceHandle, RequestType, Request,
+            int ret = libusbControlTransfer(deviceHandle, RequestType, Request,
                                         Value, Index, data, length, (ushort)5000);
-            
             LibUsb.throwIfError(ret,"Control transfer failed");
             return (uint)ret;
         }
