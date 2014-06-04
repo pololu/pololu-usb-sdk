@@ -1,6 +1,7 @@
 ﻿/* VERSION LOG:
  * 1.0.0.0: First release.
  * 1.1.0.0: Second release.  Supports Simple Motor Controller 18v7 now.
+ * 1.2.0.0, 2012-11-19: No real changes to the software, but installer includes signed drivers now.
  */
 
 using System.Reflection;
@@ -15,7 +16,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Pololu")]
 [assembly: AssemblyProduct("SmcCmd")]
-[assembly: AssemblyCopyright("Copyright © Pololu 2010")]
+[assembly: AssemblyCopyright("Copyright © Pololu 2010-2012")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -37,5 +38,5 @@ using System.Runtime.InteropServices;
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("1.1.0.0")]
-[assembly: AssemblyFileVersion("1.1.0.0")]
+[assembly: AssemblyVersion("1.2.0.0")]
+[assembly: AssemblyFileVersion("1.2.0.0")]

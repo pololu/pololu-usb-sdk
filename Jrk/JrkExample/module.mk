@@ -26,12 +26,7 @@ JrkExample_resource_args = $(join \
 Targets += $(JrkExample)/JrkExample $(JrkExample_resources)
 Byproducts += $(foreach dll, $(JrkExample_runtime), $(JrkExample)/$(notdir $(dll)))
 
-JrkExample_StandardLibs := \
-	-r:/usr/lib/mono/2.0/System.dll \
-	-r:/usr/lib/mono/2.0/System.Core.dll \
-	-r:/usr/lib/mono/2.0/System.Data.dll \
-	-r:/usr/lib/mono/2.0/System.Drawing.dll \
-	-r:/usr/lib/mono/2.0/System.Windows.Forms.dll \
+JrkExample_StandardLibs := $(Mono_StandardLibs)
 
 $(JrkExample)/JrkExample: $(JrkExample_csfiles) $(JrkExample_runtime) $(JrkExample_resources)
 	cp $(JrkExample_runtime) $(JrkExample)

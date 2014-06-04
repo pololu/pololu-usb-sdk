@@ -81,7 +81,7 @@ namespace Pololu.Usc
 
                         if (assertKey("mode", xChannel, warnings))
                         {
-                            switch (xChannel["mode"].ToLower())
+                            switch (xChannel["mode"].ToLowerInvariant())
                             {
                                 case "servomultiplied": cs.mode = ChannelMode.ServoMultiplied; break;
                                 case "servo": cs.mode = ChannelMode.Servo; break;
@@ -93,7 +93,7 @@ namespace Pololu.Usc
 
                         if (assertKey("homemode", xChannel, warnings))
                         {
-                            switch (xChannel["homemode"].ToLower())
+                            switch (xChannel["homemode"].ToLowerInvariant())
                             {
                                 case "goto": cs.homeMode = HomeMode.Goto; break;
                                 case "off": cs.homeMode = HomeMode.Off; break;

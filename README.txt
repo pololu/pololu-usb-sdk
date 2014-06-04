@@ -1,6 +1,6 @@
 Pololu USB Software Development Kit
 
-Release Date: 2012-07-12
+Release Date: 2014-06-04
 http://www.pololu.com/
 
 
@@ -48,15 +48,15 @@ migrate that project or solution to work with the new version.
 
 == Choosing a Programming Language ==
 
-If you are not sure what language you want to use, we recommend C#.  It
-is modern and powerful, but relatively simple to understand.  Most of
-the code in this SDK is written in C#.  All of our products come with
-example code written in C# that you can modify to suit your needs.
-All of the C# code here runs under Windows and Linux.
+If you are not sure what language you want to use, we recommend C#.
+It is modern and powerful, but relatively simple to understand.  Most
+of the code in this SDK is written in C#.  All of the products
+supported by this SDK come with example code written in C#.  All of
+the C# code here runs under Windows and Linux.
 
 The next best choices are Visual Basic .NET and Visual C++.  These
-languages are part of the .NET framework, so you can incorporate our
-class libraries in to your project the same way you would add any other
+languages are part of the .NET Framework, so you can incorporate our
+class libraries into your project the same way you would add any other
 .NET assembly (see "Incorporating Class Libraries" below).  Some of our
 products have VB and C++ examples, so you can compile them and then
 modify them to suit your needs.
@@ -64,10 +64,10 @@ modify them to suit your needs.
 If you are using a language that is not part of .NET, then you will
 not be able to directly run the code in this SDK, but you can use it
 as a guide to figure out which USB commands you need to send to your
-device.  You can then use WinUSB (Windows) or libusb (Linux) to send
-those commands to your device.
+device.  You can then use WinUSB, libusb, or IOKit to send those
+commands to your device.
 
-If the options above sound challenging to you, then we recommend that
+If the options above sound challenging to you, we recommend that
 you use your device's virtual USB COM port.  This SDK does not contain
 any code to help you do that, but here is what you would do:  First,
 find the documentation of your device's serial protocol by reading the
@@ -108,9 +108,9 @@ to find out how to send and receive bytes on the serial port.
   - PgmCmd: Command-line status and configuration utility (C#).
   - Programmer: Class library for USB communication (C#).
 
-* UsbWrapper_Windows: This directory contains low-level (binary-
-  only) code for communicating with Pololu USB Devices in Windows.
-  The code uses winusb, a driver that comes with Windows.  All example
+* UsbWrapper_Windows: This directory contains low-level binary-only
+  code for communicating with Pololu USB Devices in Windows.
+  The code uses WinUSB, a driver that comes with Windows.  All example
   code for Windows depends on this library.
 
 * UsbWrapper_Linux: Low-level code for communicating with Pololu USB
@@ -120,20 +120,24 @@ to find out how to send and receive bytes on the serial port.
 
 == Getting Started with C#, C++ or Visual Basic in Windows ==
 
-Our C#, C++ and Visual Basic source code can be compiled in Windows
-using free development tools from Microsoft.  To get started,
-download and install Visual C# Express, Visual Basic Express, or
-Visual C++ Express, depending on what language you want to use.
-These downloads are available at:
+The C#, C++ and Visual Basic source code in this SDK can be compiled
+in Windows using free development tools from Microsoft.  The SDK was
+designed to be used with Visual C# 2008 Express, Visual C++ 2008
+Express, or Visual Basic C# express, but it can also be used with
+later versions of Visual Studio, such as Visual Studio Express 2013
+for Windows Desktop.
+
+To get started, download and install the version you want from
+Microsoft's website:
 
    http://www.microsoft.com/express/Windows/
 
-Our code will also work with full, paid versions of Visual Studio.
+The code will also work with full, paid versions of Visual Studio.
 
 
 == Compiling Jrk C# code in Windows ==
 
-1) Open Jrk\Jrk.sln with Visual Studio or Visual C# Express.
+1) Open Jrk\Jrk.sln with Visual Studio.
 
 2) In the Solution Explorer, right click on "JrkExample" and select
    "Set as Startup Project".  This setting will make compiling and
@@ -150,7 +154,7 @@ Our code will also work with full, paid versions of Visual Studio.
 
 == Compiling Maestro C# code in Windows ==
 
-1) Open Maestro\Usc.sln with Visual Studio or Visual C# Express.
+1) Open Maestro\Usc.sln with Visual Studio.
 
 2) In the Solution Explorer, right click on "MaestroEasyExample" and
    select "Set as Startup Project".  This setting will make compiling
@@ -169,7 +173,7 @@ MaestroAdvancedExample (a more advanced GUI) using the same procedure.
 == Compiling Maestro Visual Basic code in Windows ==
 
 1) Open Maestro\MaestroEasyExampleVb\MaestroEasyExampleVb.vbproj with
-   Visual Studio or Visual Basic Express.
+   Visual Studio.
 
 2) In the Debug menu, select "Start Debugging" (or press F5).  If you
    see the example start up and open a window, this means that you
@@ -180,7 +184,7 @@ MaestroAdvancedExample (a more advanced GUI) using the same procedure.
 == Compiling Maestro Visual C++ code in Windows ==
 
 1) Open Maestro\MaestroEasyExampleCpp\MaestroEasyExampleCpp.vcproj
-   with Visual Studio or Visual C++ Express.
+   with Visual Studio.
 
 2) In the Debug menu, select "Start Debugging" (or press F5).  If you
    see the example start up and open a window, this means that you
@@ -190,8 +194,7 @@ MaestroAdvancedExample (a more advanced GUI) using the same procedure.
 
 == Compiling USB AVR Programmer C# code in Windows ==
 
-1) Open UsbAvrProgrammer\UsbAvrProgrammer.sln with Visual Studio
-   or Visual C# Express.
+1) Open UsbAvrProgrammer\UsbAvrProgrammer.sln with Visual Studio.
 
 2) In the Build menu, select "Build Solution" (or press F7).  This
    will compile UsbAvrProgrammer\PgmCmd\bin\Debug\PgmCmd.exe, which
@@ -202,8 +205,7 @@ MaestroAdvancedExample (a more advanced GUI) using the same procedure.
 
 == Compiling Simple Motor Controller C# code in Windows ==
 
-1) Open SimpleMotorController\Smc.sln with Visual Studio or Visual
-   C# Express.
+1) Open SimpleMotorController\Smc.sln with Visual Studio.
 
 2) In the Solution Explorer, right click on "SmcExample1" and select
    "Set as Startup Project".  This setting will make compiling and
@@ -221,7 +223,7 @@ You can also compile SmcCmd (a command-line utility) and SmcExample2
 == Compiling Simple Motor Controller Visual Basic code in Windows ==
 
 1) Open SimpleMotorController\SmcExample1Vb\SmcExample1Vb.vbproj with
-   Visual Studio or Visual Basic Express.
+   Visual Studio.
 
 2) In the Debug menu, select "Start Debugging" (or press F5).  If you
    see the example start up and open a window, this means that you
@@ -232,7 +234,7 @@ You can also compile SmcCmd (a command-line utility) and SmcExample2
 == Compiling Simple Motor Controller Visual C++ code in Windows ==
 
 1) Open SimpleMotorController\SmcExample1Cpp\SmcExample1Cpp.vcproj
-   with Visual Studio or Visual C++ Express.
+   with Visual Studio.
 
 2) In the Debug menu, select "Start Debugging" (or press F5).  If you
    see the example start up and open a window, this means that you
@@ -242,10 +244,14 @@ You can also compile SmcCmd (a command-line utility) and SmcExample2
 
 == Compiling C# code in Linux ==
 
-1) Copy the file 99-pololu.rules to /etc/udev/rules.d/ in order to grant
-   permission for all users to use Pololu USB devices.  If you already
-   plugged in a Pololu USB device, you should unplug it at this point so
-   the new permissions will get applied later when you plug it back in.
+1) Copy the file 99-pololu.rules to /etc/udev/rules.d/ in order to
+   grant permission for all users to use Pololu USB devices.  Run
+
+     sudo udevadm control --reload-rules
+
+   to make sure the rules get reloaded.  If you already plugged in
+   a Pololu USB device, you should unplug it at this point so the new
+   permissions will get applied later when you plug it back in.
 
 2) Download and install these packages:
 
@@ -255,7 +261,7 @@ You can also compile SmcCmd (a command-line utility) and SmcExample2
 
      sudo apt-get install libusb-1.0-0-dev mono-gmcs mono-devel libmono-winforms2.0-cil
 
-3) In the top level directory of this SDK, type "make".  This will
+3) In the top-level directory of this SDK, type "make".  This will
    build all the programs and libraries in the SDK.  Now you should be
    able to run the programs using commands like:
 
@@ -275,19 +281,19 @@ You can also compile SmcCmd (a command-line utility) and SmcExample2
 
 The .NET Framework supports many languages, including C#, Visual Basic
 .NET, Visual C++, and F#.  Any .NET project can call code from compiled
-.NET assemblies (dll files), regardless of what language the assembly
+.NET assemblies (DLL files), regardless of what language the assembly
 was written with.  This means that if you are writing a program in a
-.NET language, you can incorporate our code in to your project and use
+.NET language, you can incorporate our code into your project and use
 it to communicate with your device, the same way you would integrate
 any other .NET assembly.
 
 First, find the DLL files you will need.  You will need UsbWrapper.dll
-and also all the class libraries for your device.  You may need to
-use Visual Studio C# Express to compile the DLLs if they are not
-available in a precompiled form (look for a precompiled_obj folder).
+and also all the class libraries for your device.  You may need to use
+Visual Studio to compile the DLLs if they are not available in a
+precompiled form (look for a precompiled_obj folder).
 
 Next, in your project's properties, add references to those DLL files.
-You will need to add the library and all of its dependencies (i.e.
+You will need to add the library and all of its dependencies (e.g.
 UsbWrapper.dll).
 
 In your source files, it is also a good idea to add "Imports Pololu..."

@@ -11,6 +11,9 @@
 using System;
 using System.Runtime.InteropServices;
 
+// Disable the warning from Mono about how the RESERVED0 fields are unused.
+#pragma warning disable 169
+
 namespace Pololu.SimpleMotorController
 {
     ///<summary>

@@ -54,12 +54,11 @@ Modules ?= $(UsbWrapper) $(Bytecode) $(Sequencer) $(Usc) $(UscCmd) $(MaestroAdva
 
 # Standard library arguments needed to compile GUIs with Mono.
 Mono_StandardLibs := \
-	-r:/usr/lib/mono/2.0/System.Core.dll \
-	-r:/usr/lib/mono/2.0/System.Windows.Forms.dll \
-	-r:/usr/lib/mono/2.0/System.Drawing.dll \
-	-r:/usr/lib/mono/2.0/System.Windows.Forms.dll \
-	-r:/usr/lib/mono/2.0/System.dll \
-	-r:/usr/lib/mono/2.0/System.Data.dll
+	-r:System \
+	-r:System.Core \
+	-r:System.Data \
+	-r:System.Drawing \
+	-r:System.Windows.Forms
 
 #### Standard targets ###########################################################
 
