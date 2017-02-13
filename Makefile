@@ -4,7 +4,7 @@
 #### Configuration ##############################################################
 
 # CSC: Command for invoking the C# compiler.
-CSC:=gmcs
+CSC:=mcs
 
 # CSCFLAGS: The default compilation options to the C# compiler.
 CSCFLAGS:=-unsafe -debug

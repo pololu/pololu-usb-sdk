@@ -1,6 +1,6 @@
 Pololu USB Software Development Kit
 
-Release Date: 2014-06-04
+Release Date: 2017-02-13
 http://www.pololu.com/
 
 
@@ -253,20 +253,28 @@ You can also compile SmcCmd (a command-line utility) and SmcExample2
    a Pololu USB device, you should unplug it at this point so the new
    permissions will get applied later when you plug it back in.
 
-2) Download and install these packages:
+2) Download libusb 1.0 and its header files.  On Ubuntu, you can do
+   this with the command:
 
-     libusb-1.0-0-dev mono-gmcs mono-devel libmono-winforms2.0-cil
+     sudo apt-get install libusb-1.0-0-dev
 
-   In Ubuntu, you can do this with the command:
+3) Download and install the Mono C# compiler (mcs).  You will also
+   need System.Windows.Forms.dll, a library that usually comes with
+   the compiler.
 
-     sudo apt-get install libusb-1.0-0-dev mono-gmcs mono-devel libmono-winforms2.0-cil
+   On Ubuntu, you can install both by running:
 
-3) In the top-level directory of this SDK, type "make".  This will
+     sudo apt-get install mono-devel
+
+4) In the top-level directory of this SDK, type "make".  This will
    build all the programs and libraries in the SDK.  Now you should be
-   able to run the programs using commands like:
+   able to run any program in the SDK by typing the relative path to
+   the program.  Here are some example commands:
 
+     ./UsbAvrProgrammer/PgmCmd/PgmCmd
      ./Maestro/MaestroEasyExample/MaestroEasyExample
      ./SimpleMotorController/SmcExample1/SmcExample1
+     ./Jrk/JrkCmd/JrkCmd
 
    If you get an error message that says "cannot execute binary file",
    then try running the program with the mono runtime, for example:
