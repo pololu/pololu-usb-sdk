@@ -68,41 +68,36 @@ to find out how to send and receive bytes on the serial port.
 
 ## Directories
 
-- Jrk: Code for communicating with the Jrk Motor Controller.
-  - JrkExample: An example graphical client (C#).
-  - JrkCmd: Command-line status and control utility (C#).
-  - Jrk: Class library for USB commmunication (C#).
-
-- Maestro: Code for communicating with the Maestro Servo Controller.
-  - MaestroEasyExample: Example GUI with three buttons (C#).
-  - MaestroEasyExampleVb: Example GUI with three buttons (VB).
-  - MaestroEasyExampleCpp: Example GUI with three buttons (C++).
-  - MaestroAdvancedExample: An example graphical client (C#).
-  - UscCmd: Command-line status and control utility (C#).
-  - Usc: Class library for USB communication (C#).
-  - Sequencer: Class library for sequences of servo movements (C#).
-  - Bytecode: Class library for compiling and representing scripts
+- `Jrk` - Code for communicating with the Jrk Motor Controller.
+  - `JrkExample` - An example graphical client (C#).
+  - `JrkCmd` - Command-line status and control utility (C#).
+  - `Jrk` - Class library for USB commmunication (C#).
+- `Maestro` - Code for communicating with the Maestro Servo Controller.
+  - `MaestroEasyExample` - Example GUI with three buttons (C#).
+  - `MaestroEasyExampleVb` - Example GUI with three buttons (VB).
+  - `MaestroEasyExampleCpp` - Example GUI with three buttons (C++).
+  - `MaestroAdvancedExample` - An example graphical client (C#).
+  - `UscCmd` - Command-line status and control utility (C#).
+  - `Usc` - Class library for USB communication (C#).
+  - `Sequencer` - Class library for sequences of servo movements (C#).
+  - `Bytecode` - Class library for compiling and representing scripts
     (binary only).
-
-- SimpleMotorController: Code for communicating with the Simple Motor
+- `SimpleMotorController` - Code for communicating with the Simple Motor
   Controller.
-  - SmcExample1: Example GUI with three buttons (C#).
-  - SmcExample1Vb: Example GUI with three buttons (VB).
-  - SmcExample1Cpp: Example GUI with three buttons (C++).
-  - SmcExample2: Example GUI with a scroll bar (C#).
-  - SmcCmd: Command-line status and control utility (C#).
-  - Smc: Class library for USB communication (C#).
-
-- UsbAvrProgrammer: Code for communicating with the USB AVR Programmer.
-  - PgmCmd: Command-line status and configuration utility (C#).
-  - Programmer: Class library for USB communication (C#).
-
-- UsbWrapper_Windows: This directory contains low-level binary-only
+  - `SmcExample1` - Example GUI with three buttons (C#).
+  - `SmcExample1Vb` - Example GUI with three buttons (VB).
+  - `SmcExample1Cpp` - Example GUI with three buttons (C++).
+  - `SmcExample2` - Example GUI with a scroll bar (C#).
+  - `SmcCmd` - Command-line status and control utility (C#).
+  - `Smc` - Class library for USB communication (C#).
+- `UsbAvrProgrammer` - Code for communicating with the USB AVR Programmer.
+  - `PgmCmd` - Command-line status and configuration utility (C#).
+  - `Programmer` - Class library for USB communication (C#).
+- `UsbWrapper_Windows` - This directory contains low-level binary-only
   code for communicating with Pololu USB Devices in Windows.
   The code uses WinUSB, a driver that comes with Windows.  All example
   code for Windows depends on this library.
-
-- UsbWrapper_Linux: Low-level code for communicating with Pololu USB
+- `UsbWrapper_Linux` - Low-level code for communicating with Pololu USB
   Devices in Linux.  The code uses libusb-1.0.  All example code for
   Linux depends on this library.
 
