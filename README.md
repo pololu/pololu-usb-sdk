@@ -1,36 +1,25 @@
-Pololu USB Software Development Kit
+# Pololu USB Software Development Kit
 
-Release Date: 2017-02-13
-http://www.pololu.com/
-
-
-== Summary ==
-
-This package contains the code you need for making your own
-applications that control Pololu USB Devices.  All of the code
-uses the devices' native USB interfaces (as opposed to their
-virtual COM ports).  The supported devices are:
-
-* Jrk USB Motor Controllers with Feedback:
-  - Jrk 21v3 USB Motor Controller with Feedback (#1392)
-  - Jrk 12v12 USB Motor Controller with Feedback (#1393)
-* Maestro USB Servo Controllers:
-  - Micro Maestro 6-Channel USB Servo Controller (#1350, #1351)
-  - Mini Maestro 12-Channel USB Servo Controller (#1352, #1353)
-  - Mini Maestro 18-Channel USB Servo Controller (#1354, #1355)
-  - Mini Maestro 24-Channel USB Servo Controller (#1356, #1357)
-* Simple Motor Controllers:
-  - Simple Motor Controller 18v7 (#1372, #1373)
-  - Simple High-Power Motor Controller 18v15 (#1376, #1377)
-  - Simple High-Power Motor Controller 24v12 (#1378, #1379)
-  - Simple High-Power Motor Controller 18v25 (#1381)
-  - Simple High-Power Motor Controller 24v23 (#1383)
-* USB AVR Programmer (#1300)
-
-For more information, please contact us at www.pololu.com/contact
+[www.pololu.com](https://www.pololu.com/)
 
 
-== Languages in this SDK ==
+## Summary
+
+The Pololu USB Software Development Kit contains example code for making your own PC applications that control Pololu USB Devices.  The code lets you easily use the native USB interfaces of the devices, allowing access to more features than the virtual serial ports.  For each supported device, there is a class library that allows your program to interact with the device using simple, high-level function calls. The kit also contains complete example applications.  Most of the code is written in C#, but there are Visual Basic .NET and Visual C++ examples for both the Maestro and the Simple Motor Controller.  Microsoft Windows and Linux are supported.
+
+You do not need to be a USB expert to use this code. You can either modify our example applications to suit your needs, or you can import our class libraries into your own application.
+
+The Pololu USB Software Development Kit includes libraries and example code for the following devices:
+
+- [Pololu Jrk USB Motor Controller with Feedback](https://www.pololu.com/docs/0J38)
+- [Pololu Maestro Servo Controller](https://www.pololu.com/docs/0J40)
+- [Pololu Simple Motor Controllers](https://www.pololu.com/docs/0J44)
+- [Pololu USB AVR Programmer](https://www.pololu.com/product/1300)
+
+For more information, please [contact us](https://www.pololu.com/contact).
+
+
+## Languages in this SDK
 
 Most of the code here is written in C#, but there are some example
 programs in Visual Basic .NET and in Visual C++.  All Visual Basic .NET
@@ -46,7 +35,7 @@ Visual Studio, it will walk you through the simple steps needed to
 migrate that project or solution to work with the new version.
 
 
-== Choosing a Programming Language ==
+## Choosing a Programming Language
 
 If you are not sure what language you want to use, we recommend C#.
 It is modern and powerful, but relatively simple to understand.  Most
@@ -77,14 +66,14 @@ Finally, search Google for "serial port example [your language name]"
 to find out how to send and receive bytes on the serial port.
 
 
-== Directories ==
+## Directories
 
-* Jrk: Code for communicating with the Jrk Motor Controller.
+- Jrk: Code for communicating with the Jrk Motor Controller.
   - JrkExample: An example graphical client (C#).
   - JrkCmd: Command-line status and control utility (C#).
   - Jrk: Class library for USB commmunication (C#).
 
-* Maestro: Code for communicating with the Maestro Servo Controller.
+- Maestro: Code for communicating with the Maestro Servo Controller.
   - MaestroEasyExample: Example GUI with three buttons (C#).
   - MaestroEasyExampleVb: Example GUI with three buttons (VB).
   - MaestroEasyExampleCpp: Example GUI with three buttons (C++).
@@ -95,7 +84,7 @@ to find out how to send and receive bytes on the serial port.
   - Bytecode: Class library for compiling and representing scripts
     (binary only).
 
-* SimpleMotorController: Code for communicating with the Simple Motor
+- SimpleMotorController: Code for communicating with the Simple Motor
   Controller.
   - SmcExample1: Example GUI with three buttons (C#).
   - SmcExample1Vb: Example GUI with three buttons (VB).
@@ -104,21 +93,21 @@ to find out how to send and receive bytes on the serial port.
   - SmcCmd: Command-line status and control utility (C#).
   - Smc: Class library for USB communication (C#).
 
-* UsbAvrProgrammer: Code for communicating with the USB AVR Programmer.
+- UsbAvrProgrammer: Code for communicating with the USB AVR Programmer.
   - PgmCmd: Command-line status and configuration utility (C#).
   - Programmer: Class library for USB communication (C#).
 
-* UsbWrapper_Windows: This directory contains low-level binary-only
+- UsbWrapper_Windows: This directory contains low-level binary-only
   code for communicating with Pololu USB Devices in Windows.
   The code uses WinUSB, a driver that comes with Windows.  All example
   code for Windows depends on this library.
 
-* UsbWrapper_Linux: Low-level code for communicating with Pololu USB
+- UsbWrapper_Linux: Low-level code for communicating with Pololu USB
   Devices in Linux.  The code uses libusb-1.0.  All example code for
   Linux depends on this library.
 
 
-== Getting Started with C#, C++ or Visual Basic in Windows ==
+## Getting Started with C#, C++ or Visual Basic in Windows
 
 The C#, C++ and Visual Basic source code in this SDK can be compiled
 in Windows using free development tools from Microsoft.  The SDK was
@@ -128,40 +117,33 @@ later versions of Visual Studio, such as Visual Studio Express 2013
 for Windows Desktop.
 
 To get started, download and install the version you want from
-Microsoft's website:
-
-   http://www.microsoft.com/express/Windows/
+Microsoft's website.
 
 The code will also work with full, paid versions of Visual Studio.
 
 
-== Compiling Jrk C# code in Windows ==
+## Compiling Jrk C# code in Windows
 
-1) Open Jrk\Jrk.sln with Visual Studio.
-
-2) In the Solution Explorer, right click on "JrkExample" and select
+1. Open Jrk\Jrk.sln with Visual Studio.
+2. In the Solution Explorer, right click on "JrkExample" and select
    "Set as Startup Project".  This setting will make compiling and
    debugging this project more convenient, and you can change it later.
-
-3) In the Debug menu, select "Start Debugging" (or press F5).  If you
+3. In the Debug menu, select "Start Debugging" (or press F5).  If you
    see the example start up and open a window, this means that you
    have succeeded in building the example from source.  You can now
    modify it to suit your needs.
-
-4) If you want to make a command line utility instead of a graphical
+4. If you want to make a command line utility instead of a graphical
    application, set JrkCmd as the startup project and modify that.
 
 
-== Compiling Maestro C# code in Windows ==
+## Compiling Maestro C# code in Windows
 
-1) Open Maestro\Usc.sln with Visual Studio.
-
-2) In the Solution Explorer, right click on "MaestroEasyExample" and
+1. Open Maestro\Usc.sln with Visual Studio.
+2. In the Solution Explorer, right click on "MaestroEasyExample" and
    select "Set as Startup Project".  This setting will make compiling
    and debugging this project more convenient, and you can change it
    later.
-
-3) In the Debug menu, select "Start Debugging" (or press F5).  If you
+3. In the Debug menu, select "Start Debugging" (or press F5).  If you
    see the example start up and open a window, this means that you
    have succeeded in building the example from source.  You can now
    modify it to suit your needs.
@@ -170,48 +152,43 @@ You can also compile UscCmd (a command-line utility) and
 MaestroAdvancedExample (a more advanced GUI) using the same procedure.
 
 
-== Compiling Maestro Visual Basic code in Windows ==
+## Compiling Maestro Visual Basic code in Windows
 
-1) Open Maestro\MaestroEasyExampleVb\MaestroEasyExampleVb.vbproj with
+1. Open Maestro\MaestroEasyExampleVb\MaestroEasyExampleVb.vbproj with
    Visual Studio.
-
-2) In the Debug menu, select "Start Debugging" (or press F5).  If you
+2. In the Debug menu, select "Start Debugging" (or press F5).  If you
    see the example start up and open a window, this means that you
    have succeeded in building the example from source.  You can now
    modify it to suit your needs.
 
 
-== Compiling Maestro Visual C++ code in Windows ==
+## Compiling Maestro Visual C++ code in Windows
 
-1) Open Maestro\MaestroEasyExampleCpp\MaestroEasyExampleCpp.vcproj
+1. Open Maestro\MaestroEasyExampleCpp\MaestroEasyExampleCpp.vcproj
    with Visual Studio.
-
-2) In the Debug menu, select "Start Debugging" (or press F5).  If you
+2. In the Debug menu, select "Start Debugging" (or press F5).  If you
    see the example start up and open a window, this means that you
    have succeeded in building the example from source.  You can now
    modify it to suit your needs.
 
 
-== Compiling USB AVR Programmer C# code in Windows ==
+## Compiling USB AVR Programmer C# code in Windows
 
-1) Open UsbAvrProgrammer\UsbAvrProgrammer.sln with Visual Studio.
-
-2) In the Build menu, select "Build Solution" (or press F7).  This
+1. Open UsbAvrProgrammer\UsbAvrProgrammer.sln with Visual Studio.
+2. In the Build menu, select "Build Solution" (or press F7).  This
    will compile UsbAvrProgrammer\PgmCmd\bin\Debug\PgmCmd.exe, which
    you can run from the Command Prompt.  If the program works for you,
    you have succeeded in building it from source.  You can now modify
    it to suit your needs.
 
 
-== Compiling Simple Motor Controller C# code in Windows ==
+## Compiling Simple Motor Controller C# code in Windows
 
-1) Open SimpleMotorController\Smc.sln with Visual Studio.
-
-2) In the Solution Explorer, right click on "SmcExample1" and select
+1. Open SimpleMotorController\Smc.sln with Visual Studio.
+2. In the Solution Explorer, right click on "SmcExample1" and select
    "Set as Startup Project".  This setting will make compiling and
    debugging this project more convenient, and you can change it later.
-
-3) In the Debug menu, select "Start Debugging" (or press F5).  If you
+3. In the Debug menu, select "Start Debugging" (or press F5).  If you
    see the example start up and open a window, this means that you
    have succeeded in building the example from source.  You can now
    modify it to suit your needs.
@@ -220,72 +197,69 @@ You can also compile SmcCmd (a command-line utility) and SmcExample2
 (a more advanced GUI with a scroll bar) using the same procedure.
 
 
-== Compiling Simple Motor Controller Visual Basic code in Windows ==
+## Compiling Simple Motor Controller Visual Basic code in Windows
 
-1) Open SimpleMotorController\SmcExample1Vb\SmcExample1Vb.vbproj with
+1. Open SimpleMotorController\SmcExample1Vb\SmcExample1Vb.vbproj with
    Visual Studio.
-
-2) In the Debug menu, select "Start Debugging" (or press F5).  If you
+2. In the Debug menu, select "Start Debugging" (or press F5).  If you
    see the example start up and open a window, this means that you
    have succeeded in building the example from source.  You can now
    modify it to suit your needs.
 
 
-== Compiling Simple Motor Controller Visual C++ code in Windows ==
+## Compiling Simple Motor Controller Visual C++ code in Windows
 
-1) Open SimpleMotorController\SmcExample1Cpp\SmcExample1Cpp.vcproj
+1. Open SimpleMotorController\SmcExample1Cpp\SmcExample1Cpp.vcproj
    with Visual Studio.
-
-2) In the Debug menu, select "Start Debugging" (or press F5).  If you
+2. In the Debug menu, select "Start Debugging" (or press F5).  If you
    see the example start up and open a window, this means that you
    have succeeded in building the example from source.  You can now
    modify it to suit your needs.
 
 
-== Compiling C# code in Linux ==
+## Compiling C# code in Linux
 
-1) Copy the file 99-pololu.rules to /etc/udev/rules.d/ in order to
-   grant permission for all users to use Pololu USB devices.  Run
+1.  Copy the file 99-pololu.rules to /etc/udev/rules.d/ in order to
+    grant permission for all users to use Pololu USB devices.  Run
 
-     sudo udevadm control --reload-rules
+        sudo udevadm control --reload-rules
 
-   to make sure the rules get reloaded.  If you already plugged in
-   a Pololu USB device, you should unplug it at this point so the new
-   permissions will get applied later when you plug it back in.
+    to make sure the rules get reloaded.  If you already plugged in a
+    Pololu USB device, you should unplug it at this point so the new
+    permissions will get applied later when you plug it back in.
 
-2) Download libusb 1.0 and its header files.  On Ubuntu, you can do
-   this with the command:
+2.  Download libusb 1.0 and its header files.  On Ubuntu, you can do
+    this with the command:
 
-     sudo apt-get install libusb-1.0-0-dev
+        sudo apt-get install libusb-1.0-0-dev
 
-3) Download and install the Mono C# compiler (mcs).  You will also
-   need System.Windows.Forms.dll, a library that usually comes with
-   the compiler.
+3.  Download and install the Mono C# compiler (mcs).  You will also
+    need System.Windows.Forms.dll, a library that usually comes with
+    the compiler.
 
-   On Ubuntu, you can install both by running:
+    On Ubuntu, you can install both by running:
 
-     sudo apt-get install mono-devel
+        sudo apt-get install mono-devel
 
-4) In the top-level directory of this SDK, type "make".  This will
-   build all the programs and libraries in the SDK.  Now you should be
-   able to run any program in the SDK by typing the relative path to
-   the program.  Here are some example commands:
+4.  In the top-level directory of this SDK, type "make".  This will
+    build all the programs and libraries in the SDK.  Now you should be
+    able to run any program in the SDK by typing the relative path to
+    the program.  Here are some example commands:
 
-     ./UsbAvrProgrammer/PgmCmd/PgmCmd
-     ./Maestro/MaestroEasyExample/MaestroEasyExample
-     ./SimpleMotorController/SmcExample1/SmcExample1
-     ./Jrk/JrkCmd/JrkCmd
+        ./UsbAvrProgrammer/PgmCmd/PgmCmd
+        ./Maestro/MaestroEasyExample/MaestroEasyExample
+        ./SimpleMotorController/SmcExample1/SmcExample1
+        ./Jrk/JrkCmd/JrkCmd
 
-   If you get an error message that says "cannot execute binary file",
-   then try running the program with the mono runtime, for example:
+    If you get an error message that says "cannot execute binary file",
+    then try running the program with the mono runtime, for example:
 
-     mono ./Maestro/UscCmd/UscCmd
+        mono ./Maestro/UscCmd/UscCmd
 
-   You can now modify these programs or create your own programs.
+    You can now modify these programs or create your own programs.
 
 
-
-== Incorporating Class Libraries ==
+## Incorporating Class Libraries
 
 The .NET Framework supports many languages, including C#, Visual Basic
 .NET, Visual C++, and F#.  Any .NET project can call code from compiled
