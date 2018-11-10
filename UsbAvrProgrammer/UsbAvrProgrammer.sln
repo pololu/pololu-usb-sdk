@@ -3,6 +3,8 @@ Microsoft Visual Studio Solution File, Format Version 10.00
 # Visual C# Express 2008
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Programmer", "Programmer\Programmer.csproj", "{FBF6BAD4-CAA7-4D94-BA2E-B57380FB3323}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UsbWrapper", "..\UsbWrapper_Windows\UsbWrapper.csproj", "{D8464683-FA15-4C16-B675-E41DDE30B714}"
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PgmCmd", "PgmCmd\PgmCmd.csproj", "{3E567709-2895-4ED2-B26D-2D183A75CAB5}"
 EndProject
 Global

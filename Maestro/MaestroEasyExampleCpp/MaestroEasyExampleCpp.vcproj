@@ -53,7 +53,7 @@
 		<AssemblyReference RelativePath="System.XML.dll" AssemblyName="System.Xml, Version=2.0.0.0, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL" MinFrameworkVersion="131072"/>
 		
 		
-	<AssemblyReference RelativePath="..\..\UsbWrapper_Windows\UsbWrapper.dll"/><AssemblyReference RelativePath="..\Usc\precompiled_obj\Usc.dll"/></References>
+	<AssemblyReference RelativePath="..\..\UsbWrapper_Windows\precompiled_obj\UsbWrapper.dll"/><AssemblyReference RelativePath="..\Usc\precompiled_obj\Usc.dll"/></References>
 	<Files>
 		<Filter Name="Source Files" Filter="cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx" UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}">
 			<File RelativePath=".\AssemblyInfo.cpp">

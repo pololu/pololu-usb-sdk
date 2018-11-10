@@ -45,12 +45,16 @@ Smc ?= SimpleMotorController/Smc
 SmcCmd ?= SimpleMotorController/SmcCmd
 SmcExample1 ?= SimpleMotorController/SmcExample1
 SmcExample2 ?= SimpleMotorController/SmcExample2
+SmcG2 ?= SimpleMotorControllerG2/SmcG2
+SmcG2Cmd ?= SimpleMotorControllerG2/SmcG2Cmd
+SmcG2Example1 ?= SimpleMotorControllerG2/SmcG2Example1
+SmcG2Example2 ?= SimpleMotorControllerG2/SmcG2Example2
 
 # List of modules.  This list should be in dependency order:
 # every module should appear after all of the modules it depends on.
 # Otherwise, variables like UsbWrapper_lib will not be defined yet
 # in modules that depend on UsbWrapper, like Usc.
-Modules ?= $(UsbWrapper) $(Bytecode) $(Sequencer) $(Usc) $(UscCmd) $(MaestroAdvancedExample) $(MaestroEasyExample) $(Programmer) $(PgmCmd) $(Jrk) $(JrkCmd) $(JrkExample) $(Smc) $(SmcCmd) $(SmcExample1) $(SmcExample2)
+Modules ?= $(UsbWrapper) $(Bytecode) $(Sequencer) $(Usc) $(UscCmd) $(MaestroAdvancedExample) $(MaestroEasyExample) $(Programmer) $(PgmCmd) $(Jrk) $(JrkCmd) $(JrkExample) $(Smc) $(SmcCmd) $(SmcExample1) $(SmcExample2) $(SmcG2) $(SmcG2Cmd) $(SmcG2Example1) $(SmcG2Example2)
 
 # Standard library arguments needed to compile GUIs with Mono.
 Mono_StandardLibs := \

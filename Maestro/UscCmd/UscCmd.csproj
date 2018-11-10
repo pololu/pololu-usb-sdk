@@ -85,13 +85,16 @@
     <Compile Include="Properties\AssemblyInfo.cs"/>
   </ItemGroup>
   <ItemGroup>
-    
+    <ProjectReference Include="..\..\..\..\..\usb\UsbWrapper_Windows\UsbWrapper.csproj">
+      <Project>{D8464683-FA15-4C16-B675-E41DDE30B714}</Project>
+      <Name>UsbWrapper</Name>
+    </ProjectReference>
     
     <ProjectReference Include="..\Usc\Usc.csproj">
       <Project>{3CE41957-F003-4EEF-82AB-3EBB2F88DDBC}</Project>
       <Name>Usc</Name>
     </ProjectReference>
-  <Reference Include="UsbWrapper"><SpecificVersion>False</SpecificVersion><HintPath>..\..\UsbWrapper_Windows\UsbWrapper.dll</HintPath></Reference><Reference Include="Bytecode"><SpecificVersion>False</SpecificVersion><HintPath>..\Bytecode\Bytecode.dll</HintPath></Reference></ItemGroup>
+  <Reference Include="Bytecode"><SpecificVersion>False</SpecificVersion><HintPath>..\Bytecode\Bytecode.dll</HintPath></Reference></ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
       <Visible>False</Visible>

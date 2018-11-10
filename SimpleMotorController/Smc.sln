@@ -1,6 +1,8 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 10.00
 # Visual Studio 2008
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UsbWrapper", "..\UsbWrapper_Windows\UsbWrapper.csproj", "{D8464683-FA15-4C16-B675-E41DDE30B714}"
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Smc", "Smc\Smc.csproj", "{4990BC43-B287-4AF2-9EB7-A55BD40BDF85}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmcCmd", "SmcCmd\SmcCmd.csproj", "{4855F41D-1A7D-4CAC-89BC-479F03995040}"

@@ -104,7 +104,7 @@
   <ItemGroup>
     
     
-  <Reference Include="UsbWrapper"><SpecificVersion>False</SpecificVersion><HintPath>..\..\UsbWrapper_Windows\UsbWrapper.dll</HintPath></Reference><Reference Include="Smc"><SpecificVersion>False</SpecificVersion><HintPath>..\Smc\precompiled_obj\Smc.dll</HintPath></Reference></ItemGroup>
+  <Reference Include="UsbWrapper"><SpecificVersion>False</SpecificVersion><HintPath>..\..\UsbWrapper_Windows\precompiled_obj\UsbWrapper.dll</HintPath></Reference><Reference Include="Smc"><SpecificVersion>False</SpecificVersion><HintPath>..\Smc\precompiled_obj\Smc.dll</HintPath></Reference></ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.VisualBasic.targets"/>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

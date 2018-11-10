@@ -13,7 +13,8 @@ The Pololu USB Software Development Kit includes libraries and example code for 
 
 - [Pololu Jrk USB Motor Controller with Feedback](https://www.pololu.com/docs/0J38)
 - [Pololu Maestro Servo Controller](https://www.pololu.com/docs/0J40)
-- [Pololu Simple Motor Controllers](https://www.pololu.com/docs/0J44)
+- [Pololu Simple Motor Controller](https://www.pololu.com/docs/0J44)
+- [Pololu Simple Motor Controller G2](https://www.pololu.com/docs/0J77)
 - [Pololu USB AVR Programmer](https://www.pololu.com/product/1300)
 
 For more information, please [contact us](https://www.pololu.com/contact).
@@ -205,6 +206,41 @@ You can also compile SmcCmd (a command-line utility) and SmcExample2
 ## Compiling Simple Motor Controller Visual C++ code in Windows
 
 1. Open SimpleMotorController\SmcExample1Cpp\SmcExample1Cpp.vcproj
+   with Visual Studio.
+2. In the Debug menu, select "Start Debugging" (or press F5).  If you
+   see the example start up and open a window, this means that you
+   have succeeded in building the example from source.  You can now
+   modify it to suit your needs.
+
+
+## Compiling Simple Motor Controller G2 C# code in Windows
+
+1. Open SimpleMotorControllerG2\SmcG2.sln with Visual Studio.
+2. In the Solution Explorer, right click on "SmcG2Example1" and select
+   "Set as Startup Project".  This setting will make compiling and
+   debugging this project more convenient, and you can change it later.
+3. In the Debug menu, select "Start Debugging" (or press F5).  If you
+   see the example start up and open a window, this means that you
+   have succeeded in building the example from source.  You can now
+   modify it to suit your needs.
+
+You can also compile smcg2cmd (a command-line utility) and SmcG2Example2
+(a more advanced GUI with a scroll bar) using the same procedure.
+
+
+## Compiling Simple Motor Controller G2 Visual Basic code in Windows
+
+1. Open SimpleMotorControllerG2\SmcG2Example1Vb\SmcG2Example1Vb.vbproj with
+   Visual Studio.
+2. In the Debug menu, select "Start Debugging" (or press F5).  If you
+   see the example start up and open a window, this means that you
+   have succeeded in building the example from source.  You can now
+   modify it to suit your needs.
+
+
+## Compiling Simple Motor Controller G2 Visual C++ code in Windows
+
+1. Open SimpleMotorControllerG2\SmcG2Example1Cpp\SmcG2Example1Cpp.vcproj
    with Visual Studio.
 2. In the Debug menu, select "Start Debugging" (or press F5).  If you
    see the example start up and open a window, this means that you

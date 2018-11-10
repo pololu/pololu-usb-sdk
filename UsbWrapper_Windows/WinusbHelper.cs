@@ -475,11 +475,10 @@ namespace Pololu.WinusbHelper
                 GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE,
                 IntPtr.Zero, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, IntPtr.Zero);
 
-            Marshal.FreeHGlobal(pDeviceInterfaceDetailData);
-
             if (handles.deviceHandle.IsInvalid)
             {
                 Int32 error = Marshal.GetLastWin32Error();
+                Marshal.FreeHGlobal(pDeviceInterfaceDetailData);
                 if (error == 5) // ERROR_ACCESS_DENIED
                 {
                     throw new Win32Exception("Access denied when trying to open device.  Try closing all other programs that are using the device.");
@@ -489,6 +488,7 @@ namespace Pololu.WinusbHelper
                     throw new Win32Exception(error, "Unable to create a handle for the device (" + devicePath + ").");
                 }
             }
+            Marshal.FreeHGlobal(pDeviceInterfaceDetailData);
 
             // Use DeviceHandle to make a Winusb Interface Handle.
             result = WinUsb_Initialize(handles.deviceHandle, ref handles.winusbHandle);
