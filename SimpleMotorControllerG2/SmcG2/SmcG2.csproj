@@ -52,7 +52,7 @@
     <Compile Include="Smc.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\usb\UsbWrapper_Windows\UsbWrapper.csproj">
+    <ProjectReference Include="..\..\UsbWrapper_Windows\UsbWrapper.csproj">
       <Project>{D8464683-FA15-4C16-B675-E41DDE30B714}</Project>
       <Name>UsbWrapper</Name>
     </ProjectReference>
