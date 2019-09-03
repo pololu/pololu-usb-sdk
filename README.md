@@ -102,7 +102,7 @@ to find out how to send and receive bytes on the serial port.
 - `UsbAvrProgrammer` - Code for communicating with the USB AVR Programmer.
   - `PgmCmd` - Command-line status and configuration utility (C#).
   - `Programmer` - Class library for USB communication (C#).
-- `UsbWrapper_Windows` - This directory contains low-level binary-only
+- `UsbWrapper_Windows` - This directory contains low-level
   code for communicating with Pololu USB Devices in Windows.
   The code uses WinUSB, a driver that comes with Windows.  All example
   code for Windows depends on this library.
