@@ -83,8 +83,16 @@ to find out how to send and receive bytes on the serial port.
   - `Sequencer` - Class library for sequences of servo movements (C#).
   - `Bytecode` - Class library for compiling and representing scripts
     (binary only).
+- `SimpleMotorControllerG2` - Code for communicating with the Simple Motor
+  Controller G2.
+  - `SmcG2Example1` - Example GUI with three buttons (C#).
+  - `SmcG2Example1Vb` - Example GUI with three buttons (VB).
+  - `SmcG2Example1Cpp` - Example GUI with three buttons (C++).
+  - `SmcG2Example2` - Example GUI with a scroll bar (C#).
+  - `SmcG2Cmd` - Command-line status and control utility (C#).
+  - `SmcG2` - Class library for USB communication (C#).
 - `SimpleMotorController` - Code for communicating with the Simple Motor
-  Controller.
+  Controller (not the Simple Motor Controller G2)
   - `SmcExample1` - Example GUI with three buttons (C#).
   - `SmcExample1Vb` - Example GUI with three buttons (VB).
   - `SmcExample1Cpp` - Example GUI with three buttons (C++).
